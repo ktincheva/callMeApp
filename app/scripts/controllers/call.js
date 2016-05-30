@@ -201,18 +201,24 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
     var getProfileByUsername = function ()
     {
         console.log($scope.user.username);
-        Profile.getProfileByUsername($scope.user.username)
+        
+        var profile = Profile.getProfileByUsernameJson($scope.user.username)
                 .success(function (data) {
-                    console.log(data);
-                    init(data);
                     
+                    var user = $filter('filter')(data.users, function(item){
+                        
+                        return item.username === $scope.user.username;
+                    })[0];
+                    console.log(user);
+                    init(user);  
                     // should send data to the server
                 })
                 .error(function (data) {
                     //shpould log errors
                     console.log(data);
-                })
-
+                }) 
+                console.log(profile.username);
+              
     }
 
 

@@ -24,13 +24,13 @@ var PeerConnection = function(localStream, connection)
    
     
     
-   var createOffer = function(connection)
+   peerConnection.createOffer = function(connection)
    {
             console.log('Send offer to ' + connection.toId + ' on peer connection ' + peerConnection);
             peerConnection.createOffer(onCreateOfferSuccess, onCreateSessionDescriptionError, offerOptions);    
    }
    
-   var createAnswer = function(connection)
+   peerConnection.createAnswer = function(connection)
    {
             console.log('Send answer to ' + connection.fromId + ' on peer connection ' + peerConnection);
             var rtcOffer = new RTCSessionDescription(connection.sdp);
@@ -40,7 +40,7 @@ var PeerConnection = function(localStream, connection)
    }
    
    
-   var connectionClose = function ()
+   peerConnection.connectionClose = function ()
     {
         peerConnection.close();
         peerConnection = null;
@@ -86,9 +86,6 @@ var PeerConnection = function(localStream, connection)
     {
         console.log("On create answer error");
     };  
-    return {
-        'createOffer': createOffer,
-        'createAnswer': createAnswer,
-    }
+    return peerConnection;
 }
 
