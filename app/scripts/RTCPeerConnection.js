@@ -66,7 +66,7 @@ var PeerConnection = function(localStream, connection)
     var onCreateOfferSuccess = function (offer) {
         console.log('pc1 setLocalDescription start');
         peerConnection.setLocalDescription(offer, function () {
-            console.log(connection.toId);
+            console.log(connection);
             // peerConnections[connection.toId] = peerConnection;
             socket.emit('msg', {room: connection.roomId, fromId: connection.user.username, toId: connection.toId, sdp: offer, type: 'sdp-offer', user: connection.user.username});
         });

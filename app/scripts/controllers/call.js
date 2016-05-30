@@ -54,7 +54,7 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
     $scope.sendOffer = function (toId) {
         console.log('Starting call to');
         console.log(toId);
-        $scope.connection.formId = $scope.user.username;
+        $scope.connection.fromId = $scope.user.username;
         $scope.connection.toId = toId;
         $scope.connection.type = 'offer'
         

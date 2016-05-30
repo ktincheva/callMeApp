@@ -97,7 +97,7 @@ CallMe.factory('socketService', function ($sce, $location, Io, config, $q) {
  var receiveOffer = function (data) {
         console.log("Received SDP offer data: ");
         console.log(connection.fromId);
-        if (data.toId === connection.formId)
+        if (data.toId === connection.fromId)
         {
             $("#incomingCall").show();
             connection.fromId = data.toId;
