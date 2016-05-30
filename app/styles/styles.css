@@ -1,0 +1,83 @@
+body, html {
+  width: 100%;
+  height: 100%;
+}
+
+video {
+  background: black;
+}
+
+.local-video {
+  width: 25%;
+  position: absolute;
+  top: 206px;
+  left: 10px;
+}
+
+.active-video {
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  left: 0px;
+}
+
+.iphone-frame {
+  /*background-image: url(/images/iphone-frame.png);
+  background-size: 800px;
+  width: 800px;
+  height: 381px;
+  */
+  height: 381px;
+}
+
+.screen-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.screen-wrapper .remote-video {
+  float: left;
+  width: 20%;
+  height: 100%;
+  margin-bottom: 0px;
+  border:solid 2px red;
+  background: #fff border-box;
+  color: red;
+ 
+}
+.screen-wrapper .remote-videos-container
+{
+    height: 20%;
+    width: 100%;
+    bottom: 0px;
+   position: absolute;
+}
+
+.screen-wrapper .remote-videos-container div
+{
+    float: left;
+    height: 100%;
+    width:20%;
+} 
+.screen-wrapper input {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-size: 25px;
+  width: 550px;
+  background: transparent;
+  border: none;
+  outline: none;
+  text-shadow: 0px 0px 3px #fff;
+  color: #000;
+}
+
+.modal {
+
+    
+}
+
+.call_icon, .hangup_icon{
+    width: 32px;
+}
