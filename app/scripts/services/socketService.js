@@ -21,7 +21,7 @@ CallMe.factory('socketService', function ($sce, $location, config, $q) {
    var socket = null; 
     
     var socket = io.connect(location.protocol + '//' + location.host);
-    
+    console.log(socket.id);
     var setConnection = function(conn)
     {
         console.log('------------------- servise set connection');

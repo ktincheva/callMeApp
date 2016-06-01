@@ -13,23 +13,21 @@ expressApp.use(express.static(__dirname + '/../app/'));
 
 exports.run = function (config) {
     var server = https.createServer(options, expressApp);
+    var userIds = {};
     server.listen(config.PORT);
 
     console.log("Server started!");
     console.log('Listening on', config.PORT);
-    
     var io = socketio.listen(server, {log: true});
     var numClients = 0;
-    var userIds = {};
+    
     var rooms = {};
     var sockets = [];
+    
     io.on('connection', function (socket) {
         console.log("--------on connection socket room is----------");
         console.log(socket.room);
-        
         socket.on('init', function (data) {
-            
-            
             console.log(data);
             socket.room = data.room;
             socket.username = data.username;
@@ -38,10 +36,9 @@ exports.run = function (config) {
           
             userIds[data.username] = data;
             console.log("-------------------------Socket Init----------------------------- ");            
-            socket.username = data.username;
+            
             console.log("------------------------Users Ids json object---------------------");
             console.log(userIds);
-            
             console.log("----------------------- Current Room clients----------------------");
             console.log(io.sockets.adapter.rooms[socket.room]);
             
@@ -51,6 +48,8 @@ exports.run = function (config) {
             console.log(io.sockets.adapter.rooms[socket.room]);
             console.log('Room ' + socket.room + ' has ' + numClients + ' client(s)');
             var result = {room: socket.room, socket: socket.id, user: data.username, users: userIds};
+            sockets[socket.id] = result;
+            
             if (numClients === 0) {
                 socket.join(data.room);
                 socket.emit('created', result);
@@ -88,10 +87,9 @@ exports.run = function (config) {
             socket.leave(socket.room);
         });
         // when the client emits 'sendchat', this listens and executes
-        socket.on('sendchat', function (data) {
-            console.log("Server: on send chat event starts");
-            // we tell the client to execute 'updatechat' with 2 parameters
-            io.sockets.in(socket.room).emit('updatechat', socket.username, data);
+        socket.on('message', function (data) {
+            console.log("Server: on send chat event starts", data);
+            io.sockets.in(data.room).emit('updatechat', data.username ,{'text': data.text, 'room': data.room, 'users': userIds});
         });
 
         socket.on('switchRoom', function (data) {
@@ -120,13 +118,10 @@ exports.run = function (config) {
         socket.on('disconnect', function() {
             console.log('on disconnect');
             console.log(socket.username);
-            console.log(userIds);
-            if (socket.username && userIds)
-            {
+            console.log((typeof userIds));
+            if (((typeof userIds) === 'object' && (typeof userIds[socket.username]) === 'object') && (socket.username!== null || socket.username!=='undefined')){
                 if (Object.keys(userIds[socket.username]).length>0)
                     delete userIds[socket.username];
-                    
-                console.log(userIds);
                 socket.emit('userleaved', {'username': socket.username, 'users': userIds, 'status': 'leave'});
                 socket.broadcast.emit('userleaved', {'username': socket.username, 'users': userIds});
                 socket.leave(socket.room);
@@ -134,4 +129,3 @@ exports.run = function (config) {
         });
     });
 };
-

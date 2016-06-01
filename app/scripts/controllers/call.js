@@ -20,7 +20,6 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
     var disconnectButton = document.getElementById('disconnectButton');
     var rooms = ['room1', 'room2', 'room3'];
     var roomId = 'room1';
-    var socket = io.connect(location.protocol + '//' + location.host);
    
    console.log(socket);
     $scope.user = {username: $routeParams.userId};
@@ -95,7 +94,6 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
     var getProfileByUsername = function ()
     {
         console.log($scope.user.username);
-
         var profile = Profile.getProfileByUsernameJson($scope.user.username)
                 .success(function (data) {
 
@@ -118,7 +116,7 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
         console.log(profile.username);
 
     }
-         var appendRemoteVideoElement = function (id)
+    var appendRemoteVideoElement = function (id)
     {
         var remoteVideo = document.getElementById('remote-video-' + id);
         if (!remoteVideo)
@@ -130,7 +128,7 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
             video.style.verticalAlign = "middle";
             videoWrapper.appendChild(video)
             video.autoplay = true;
-           
+
             remoteVideo = document.getElementById("remote-video-" + id)
             remoteVideo.addEventListener('loadedmetadata', function () {
                 remoteVideo.play();
@@ -209,9 +207,9 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
         console.log("Send message data")
         console.log(data);
         $('#data-' + room).html('');
-        data.room = room
+        data = {'room': room, 'username': $scope.user.username, 'text': data.text};
         // tell server to execute 'sendchat' and send along one parameter
-        socket.emit('sendchat', data);
+        socket.emit('message', data);
     }
     $scope.formdata = new FormData();
     $scope.sendImages = function ($files)
@@ -252,17 +250,14 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
         socketService.handleMessage(data);
     });
 
-    socket.on('updatechat', function (username, data) {
-        console.log("Update chat message");
+    socket.on('updatechat', function (user, data) {
+        console.log("Update chat message", data);
         console.log($filter('smilies')(data.text));
-        $('#conversation-' + data.room).append('<b>' + username + ':</b>  <pre>' + $filter('smilies')(data.text) + '</pre>');
-        $scope.$apply();
+        $('#conversation-' + data.room).append('<b>' + user + ':</b>  <pre>' + $filter('smilies')(data.text) + '</pre>');
+       
     });
     socket.on('updaterooms', function (rooms, current_room, users) {
-        console.log("Update rooms ");
-
-       
-        
+        console.log("Update rooms ");   
         console.log($scope.users);
         console.log(current_room);
         $('.current_room').html(current_room)
