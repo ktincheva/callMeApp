@@ -22,7 +22,7 @@ exports.run = function (config) {
     var numClients = 0;
     var userIds = {};
     var rooms = {};
-    
+    var sockets = [];
     io.on('connection', function (socket) {
         console.log("--------on connection socket room is----------");
         console.log(socket.room);
@@ -32,6 +32,7 @@ exports.run = function (config) {
             
             console.log(data);
             socket.room = data.room;
+            socket.username = data.username;
             console.log("current Room: " + socket.room);
             console.log("username: " + data.username);
           
@@ -101,7 +102,7 @@ exports.run = function (config) {
             console.log(data.username);
             socket.leave(socket.room);
             // sent message to OLD room
-            socket.broadcast.to(data.room).emit('updatechat', 'SERVER', {'text': socket.username + ' has left this room', 'room': data.room, 'users': userIds});
+            socket.broadcast.to(data.room).emit('updatechat', 'SERVER', {'text': data.username + ' has left the room '+ data.room, 'room': data.room, 'users': userIds});
             // join new room, received as function parameter
             console.log("----------- join to new room------------------");
             
@@ -109,19 +110,19 @@ exports.run = function (config) {
             socket.room = data.room;
             console.log("--------------- socket room is --------------------");
             console.log(socket.room);
-            socket.emit('updatechat', 'SERVER', {'text': 'You have connected to ' + data.room, 'room': data.room, 'users': userIds});
+            socket.emit('updatechat', 'SERVER', {'text': 'Hello '+data.username+' :) You have connected to room ' + data.room , 'room': data.room, 'users': userIds});
 
             // update socket session room title
-            socket.broadcast.to(data.room).emit('updatechat', 'SERVER', {'text': data.username + ' has joined this room', 'room': data.room, 'users': userIds});
+            socket.broadcast.to(data.room).emit('updatechat', 'SERVER', {'text': data.username + ' has joined the room '+data.room, 'room': data.room, 'users': userIds});
             socket.emit('updaterooms', rooms, data.room, {'users': userIds});
         });
 
         socket.on('disconnect', function() {
             console.log('on disconnect');
             console.log(socket.username);
-            if (socket.username)
+            console.log(userIds);
+            if (socket.username && userIds)
             {
-                console.log(userIds[socket.username].length);
                 if (Object.keys(userIds[socket.username]).length>0)
                     delete userIds[socket.username];
                     

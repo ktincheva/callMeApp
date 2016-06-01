@@ -1,5 +1,5 @@
 'use strict';
-CallMe.factory('socketService', function ($sce, $location, Io, config, $q) {
+CallMe.factory('socketService', function ($sce, $location, config, $q) {
     
     var users = {};
     var status = '';
@@ -18,19 +18,17 @@ CallMe.factory('socketService', function ($sce, $location, Io, config, $q) {
     
     
    var localStream = null;
-    
+   var socket = null; 
     
     var socket = io.connect(location.protocol + '//' + location.host);
-  
+    
     var setConnection = function(conn)
     {
         console.log('------------------- servise set connection');
         connection = conn;
     }
     console.log(connection);
-    socket.on('msg', function (data) {
-        handleMessage(data);
-    });
+  
     
     var handleMessage = function (data) {
         console.log("Handle message function");
@@ -47,7 +45,7 @@ CallMe.factory('socketService', function ($sce, $location, Io, config, $q) {
                 if (data.ice && peer)
                 {
                     var candidate = new RTCIceCandidate(data.ice);
-                    peer.AddIceCand(candidate);
+                    peer.addIceCand(candidate);
                 }
                 break;
         }
@@ -116,7 +114,7 @@ CallMe.factory('socketService', function ($sce, $location, Io, config, $q) {
         geePeer();
     }
     
-    var geePeer= function ()
+    var geePeer = function ()
     {
 
         console.log("Get peer connection or create new if not exists");
@@ -154,7 +152,7 @@ CallMe.factory('socketService', function ($sce, $location, Io, config, $q) {
             console.log(peer);
             peers[id] = peer;
         }
-        console.log(peer);
+        console.log(peers);
     }
     
     
@@ -174,5 +172,6 @@ CallMe.factory('socketService', function ($sce, $location, Io, config, $q) {
         'peers': peers,
         'startUserMedia': startUserMedia,
         'setConnection': setConnection,
+        'handleMessage': handleMessage,
     }
 });

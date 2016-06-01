@@ -14,10 +14,17 @@ var PeerConnection = function (localStream, connection, socket)
 
     var connection = connection;
     var socket = socket;
+    console.log(socket)
+    console.log("Create new RTCPeerConnection");
+
+
     var onIceCandidate = function (event) {
         console.log(event.candidate);
+        console.log(socket);
         if (event.candidate) {
-           // socket.emit('msg', {type: 'ice', ice: event.candidate, 'connection': connection});
+            
+            socket.emit('msg', {room: connection.roomId, type: 'ice', error: 'somthing whent wrong when add ice candidate'});
+            socket.emit('msg', {room: connection.roomId, type: 'ice', ice: event.candidate, user: connection.user.username});
         }
     }
     var onAddStream = function (event) {
@@ -65,16 +72,15 @@ var PeerConnection = function (localStream, connection, socket)
          vid.src = windowv.URL.createObjectURL(event.stream);*/
         remoteVideo.src = window.URL.createObjectURL(stream)
         remoteVideo.srcObject = stream;
-        
+
     }
-    console.log("Create new RTCPeerConnection");
+
     peerConn = new RTCPeerConnection(iceConfig)
-    peerConn.onicecandidate = onIceCandidate
+    peerConn.onicecandidate = onIceCandidate;
     peerConn.onaddstream = onAddStream;
     peerConn.addStream(localStream);
     console.log(peerConn);
-
-    peerConn.addIceCand = function(cand)
+    peerConn.addIceCand = function (cand)
     {
         peerConn.addIceCandidate(cand);
     }
@@ -100,8 +106,6 @@ var PeerConnection = function (localStream, connection, socket)
         peerConn = null;
     }
 
-
-    
     console.log(peerConn);
     return peerConn;
 }

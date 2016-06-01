@@ -20,12 +20,14 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
     var disconnectButton = document.getElementById('disconnectButton');
     var rooms = ['room1', 'room2', 'room3'];
     var roomId = 'room1';
-
+    var socket = io.connect(location.protocol + '//' + location.host);
+   
+   console.log(socket);
     $scope.user = {username: $routeParams.userId};
     $scope.message = {text: ""};
     $scope.connection = {};
     
-    $scope.connection.socket = socket;
+    $scope.connection.socketid = socket.id;
     $scope.connection.user = {'username': $scope.user.username};
     $scope.connection.roomId = roomId;  
     
@@ -58,8 +60,8 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
             // getPeerConnection(connection.toId);
             
             socketService.startUserMedia();
-            appendRemoteVideoElement(toId)
-            $scope.$apply
+            appendRemoteVideoElement(toId);
+           
         } else {
             errors.push("Missing user name");
         }
@@ -241,12 +243,14 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
         $scope.remoteUser = $scope.connection.toId;
         socketService.startUserMedia();
         appendRemoteVideoElement($scope.connection.toId)
-        $scope.$apply();
+       
         console.log("Receive offer: ");
         console.log($scope.connection.type);
     };
 
-
+     socket.on('msg', function (data) {
+        socketService.handleMessage(data);
+    });
 
     socket.on('updatechat', function (username, data) {
         console.log("Update chat message");
@@ -257,12 +261,13 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
     socket.on('updaterooms', function (rooms, current_room, users) {
         console.log("Update rooms ");
 
-        $scope.users = users.users;
-        $scope.$apply();
+       
+        
         console.log($scope.users);
         console.log(current_room);
         $('.current_room').html(current_room)
         $scope.current_room = current_room;
+         updateUsersConnected(users, 'conneted')
     });
     socket.on('created', function (data)
     {
