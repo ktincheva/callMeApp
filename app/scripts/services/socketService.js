@@ -7,10 +7,7 @@ CallMe.factory('socketService', function ($sce, $location, Io, config, $q) {
     var peer = null;
     var peers = [];
     
-    var updateUsersConnected = function(users, status){
-        users = users;
-        status = status;
-    }
+   
     
     var videoConstraints = {
         video: {width: {exact: 320}, height: {exact: 240}},
@@ -24,56 +21,17 @@ CallMe.factory('socketService', function ($sce, $location, Io, config, $q) {
     
     
     var socket = io.connect(location.protocol + '//' + location.host);
-    connection.socket = this.socket;
-    
-    console.log(this.connection);
+  
+    var setConnection = function(conn)
+    {
+        console.log('------------------- servise set connection');
+        connection = conn;
+    }
+    console.log(connection);
     socket.on('msg', function (data) {
         handleMessage(data);
     });
     
-    
-    socket.on('created', function (data)
-    {
-        console.log('room created');
-        console.log(data);
-        updateUsersConnected(data.users, 'conneted')
-    });
-    
-    socket.on('joined', function (data)
-    {
-        console.log('room joined: ');
-        console.log(data.socket);
-        updateUsersConnected(data.users, 'conneted')
-    });
-    
-    socket.on('ready', function (data) {
-        console.log('socket ready: ');
-        console.log(data);
-        updateUsersConnected(data.users, 'conneted')
-    })
-
-    socket.on('fill', function (data) {
-        console.log('socket fill: ');
-        console.log(data.socket);
-        updateUsersConnected(data.users, 'conneted')
-    });
-    
-    socket.on('userleaved', function (data)
-    {
-        console.log('userleaved');
-        console.log(data);
-      
-        if (data.status)
-            status = data.status
-        updateUsersConnected(data.users, status)
-    });
-
-
-    socket.on('connect', function () {
-        console.log("Connect to the chat")
-        // call the server-side function 'adduser' and send one parameter (value of prompt)
-    });
-
     var handleMessage = function (data) {
         console.log("Handle message function");
         switch (data.type) {
@@ -84,11 +42,12 @@ CallMe.factory('socketService', function ($sce, $location, Io, config, $q) {
                 receiveAnswer(data);
                 break;
             case 'ice':
+                console.log("-----On ICE candidate message -----")
                 console.log(data);
                 if (data.ice && peer)
                 {
                     var candidate = new RTCIceCandidate(data.ice);
-                    peer.addIceCandidate(candidate);
+                    peer.AddIceCand(candidate);
                 }
                 break;
         }
@@ -96,8 +55,8 @@ CallMe.factory('socketService', function ($sce, $location, Io, config, $q) {
     
  var receiveOffer = function (data) {
         console.log("Received SDP offer data: ");
-        console.log(connection.fromId);
-        if (data.toId === connection.fromId)
+        console.log(connection);
+        if (data.toId === connection.user.username)
         {
             $("#incomingCall").show();
             connection.fromId = data.toId;
@@ -112,7 +71,7 @@ CallMe.factory('socketService', function ($sce, $location, Io, config, $q) {
        
  var receiveAnswer = function (data)
     {
-        console.log(connection.toId);
+        console.log(connection);
         console.log(data);
         if (data.toId === connection.fromId)
         {
@@ -123,32 +82,11 @@ CallMe.factory('socketService', function ($sce, $location, Io, config, $q) {
             connection.toId = data.fromId;
             connection.sdp = data.sdp;
             connection.type = 'answer-received';
-            socket.peer.setRemoteDescription(new RTCSessionDescription(data.sdp));
-            appendRemoteVideoElement
+            peer.setRemoteDescription(new RTCSessionDescription(data.sdp));
+           
         }
         }
-        var appendRemoteVideoElement = function (id)
-    {
-        var remoteVideo = document.getElementById('remote-video-' + id);
-        if (!remoteVideo)
-        {
-            var videoWrapper = document.getElementById("remote-videos-container");
-            var video = document.createElement("video");
-            video.setAttribute("id", "remote-video-" + id);
-            video.setAttribute("class", "remote-video active-video");
-            video.style.verticalAlign = "middle";
-            videoWrapper.appendChild(video)
-            video.autoplay = true;
-           // $scope.$apply();
-            remoteVideo = document.getElementById("remote-video-" + id)
-            remoteVideo.addEventListener('loadedmetadata', function () {
-                remoteVideo.play();
-                console.log('Remote video videoWidth: ' + this.videoWidth +
-                        'px,  videoHeight: ' + this.videoHeight + 'px');
-            });
-        }
-    }
-
+   
    var startUserMedia = function () {
         console.log("Start user media: ");
         ///////////////
@@ -175,25 +113,27 @@ CallMe.factory('socketService', function ($sce, $location, Io, config, $q) {
         console.log('Add local stream to the peer connection');
         console.log(localStream);
        
-        addStreamAndSetDescriptions(stream);
+        geePeer();
     }
     
-    var addStreamAndSetDescriptions = function (stream)
+    var geePeer= function ()
     {
 
-        console.log("Add Stream and set local decription");
+        console.log("Get peer connection or create new if not exists");
         console.log(connection);
         getPeerConnection(connection.toId);
+        
+        console.log(peer);
         // create video element
         if (connection.type === 'offer')
         {
-            peer.createOffer(connection)
+            peer.sendOffer(connection)
         }
         else if (connection.type === 'answer')
         {
-            peer.createAnswer(connection);
+            peer.sendAnswer(connection);
         }
-        // peerConnections[connection.toId] = peerConnection;
+        
     }
     
     var getPeerConnection = function (id)
@@ -208,7 +148,11 @@ CallMe.factory('socketService', function ($sce, $location, Io, config, $q) {
         }
         else {
             console.log("Create new PeerConnection")
-            peer = new PeerConnection(localStream, connection)
+            peer = new PeerConnection(localStream, connection, socket)
+            
+            console.log('New peer Created');
+            console.log(peer);
+            peers[id] = peer;
         }
         console.log(peer);
     }
@@ -223,12 +167,12 @@ CallMe.factory('socketService', function ($sce, $location, Io, config, $q) {
                 'px,  videoHeight: ' + this.videoHeight + 'px');
     });
     return {
-        'users':users,
         'socket': socket,
         'connection': connection,
         'localStream': localStream,
         'peer': peer,
         'peers': peers,
         'startUserMedia': startUserMedia,
+        'setConnection': setConnection,
     }
 });

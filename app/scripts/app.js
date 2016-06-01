@@ -16,7 +16,7 @@ var CallMe = angular.module('callMeApp', [
             'ngRoute',
             'ngSanitize',
             'ngTouch',
-             'ui.bootstrap',
+            'ui.bootstrap',
             'ngMessages',
             'ui.bootstrap.tpls',
             'ui.bootstrap.modal'
@@ -27,6 +27,10 @@ var CallMe = angular.module('callMeApp', [
                         templateUrl: 'views/main.html',
                         controller: 'MainCtrl',
                         controllerAs: 'main'
+                    })
+                    .when('/chat/:roomId', {
+                        templateUrl: 'views/chat.html',
+                        controller: 'CallCtrl'
                     })
                     .when('/chat/:roomId/:userId', {
                         templateUrl: 'views/chat.html',
@@ -42,8 +46,8 @@ var CallMe = angular.module('callMeApp', [
         })
         .constant('config', {
             // Change it for your app URL
-           // SIGNALIG_SERVER_URL: 'https://10.2.2.201:5555',
-           SIGNALIG_SERVER_URL: 'https://192.168.1.6:5555',
+            SIGNALIG_SERVER_URL: 'https://10.2.2.201:5555',
+           //SIGNALIG_SERVER_URL: 'https://192.168.1.6:5555',
            max_connections: 5,
            apiUrl: "https://10.2.2.201/chatApi/",
            siteUrl: "https://10.2.2.201",
