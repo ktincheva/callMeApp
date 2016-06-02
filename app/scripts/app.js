@@ -18,6 +18,7 @@ var CallMe = angular.module('callMeApp', [
             'ngTouch',
             'ui.bootstrap',
             'ngMessages',
+            'ngAnimate',
             'ui.bootstrap.tpls',
             'ui.bootstrap.modal',
             

@@ -19,7 +19,6 @@ CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $sco
     socket.emit('test', {data: "Test send alabala"});
     socket.on('test', function (data) {
         Utils.debug_log('test sended to')
-
     });
 
     console.log($routeParams);
@@ -145,7 +144,7 @@ CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $sco
         switch(event)
         {
             default: 
-                updateUsersConnected(data.users, 'conneted');  
+                updateUsersConnected(data.users, data.status);  
         }
     }
     $scope.createImageUrl = function (data)
@@ -175,42 +174,45 @@ CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $sco
     };
     var updateChat = function (data)
     {
+        Utils.debug_log(data);
         $('#conversation-' + data.room).append('<b>' + data.user + ':</b>  <pre>' + $filter('smilies')(data.text) + '</pre>');
         updateUsersConnected(data.users, 'conneted')
     }
     var updateRooms = function (data) {
         console.log("Update rooms ");
         console.log($scope.users);
-        console.log(data.current_room);
-
-        $('.current_room').html(data.current_room)
+        console.log(data.room);
         $scope.current_room = data.room;
         updateUsersConnected(data.users, 'conneted')
     }
     
     var updateUsersConnected = function (users, status) {
         console.log("------------ Socket service update users connected------------------")
+        console.log(users)
         $scope.users = users;
         $scope.status = status;
-        //$scope.$apply();
+        $scope.$apply();
     }
     
     
     AppEmitter.on('updatechat', function (data) {
-        console.log(data);
+         Utils.debug_log(data)
         updateChat(data);
     });
     AppEmitter.on('updaterooms', function (data) {
-        console.log(data);
+         Utils.debug_log(data)
         updateRooms(data);
     });
 
     AppEmitter.on('updateusers', function (data) {
-        console.log(data);
+        Utils.debug_log(data)
         updateUsersConnected(data.users, data.status)
     });
        
-        
+     AppEmitter.on('msg', function (data) {
+        Utils.debug_log(data)
+        socketService.handleMessage(data); 
+    });    
     
     
     hangupButton.disabled = true;

@@ -1,28 +1,27 @@
 var socket = io.connect(location.protocol + '//' + location.host);
-
 socket.on('msg', function (data) {
-    socketService.handleMessage(data);
+   AppEmitter.emit('msg', data);  
 });
 socket.on('updatechat', function (data) {
     console.log("Update chat message", data);
     AppEmitter.emit('updatechat', data);  
 });
 socket.on('updaterooms', function (data) {
-    AppEmitter.emit('updaterooms', data);  
+    AppEmitter.emit('updaterooms', data);
+    AppEmitter.emit('updateusers', data); 
 });
 socket.on('created', function (data)
 {
     console.log('room created');
     console.log(data);
-   
+    AppEmitter.emit('updateusers', data);  
 });
 
 socket.on('joined', function (data)
 {
-    updateUsersConnected(data.users, 'conneted')
     console.log('user ' + data.username + ' joined to room ' + data.room);
     console.log(data);
-
+     AppEmitter.emit('updateusers', data); 
 });
 
 socket.on('ready', function (data)
@@ -50,8 +49,3 @@ socket.on('connected', function (data) {
     console.log(data);
     AppEmitter.emit('updateusers', data);  
 });
-
-socket.send = function(event, fn, data)
-{
-    socket.on(event,fn(data));
-}

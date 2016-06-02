@@ -5,23 +5,52 @@
     }
 
 </style>
+<style>
+  .full button span {
+    background-color: limegreen;
+    border-radius: 32px;
+    color: black;
+  }
+  .partially button span {
+    background-color: orange;
+    border-radius: 32px;
+    color: black;
+  }
+</style>
+<div class="container">
+        <div class="row-fliud">
+            <h2>Call Me<span class="current_room"></span></h2> <span><a ng-click="CallCtrlstartUserMedia()"><i class = "icon-large icon-microphone"></i></a></span>
+        </div>
+</div>
+<div ng-controller="DatepickerPopupCtrl">
+    <pre>Shedule date: <em>{{dt | date:'fullDate' }}</em></pre>
+
+    <h4></h4>
+    <div class="row">
+      <div class="col-sm-3 col-md-6">
+        <p class="input-group">
+          <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="dt" is-open="popup1.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-default" ng-click="open1()"><i class="glyphicon glyphicon-calendar"></i></button>
+          </span>
+        </p>
+      </div>
+       <div class="col-sm-3 col-md-6">
+         <select class="form-control" ng-model="format" ng-options="f for f in formats"><option></option></select>
+      </div>
+    </div>
+    <div class="row">
+      
+    </div>
+    <hr />
+    <button type="button" class="btn btn-sm btn-info" ng-click="today()">Today</button>
+    <button type="button" class="btn btn-sm btn-default" ng-click="setDate(2009, 7, 24)">2009-08-24</button>
+    <button type="button" class="btn btn-sm btn-danger" ng-click="clear()">Clear</button>
+    <button type="button" class="btn btn-sm btn-default" ng-click="toggleMin()" uib-tooltip="After today restriction">Min date</button>
+</div>
 <div ng-controller = "CallCtrl">
     <div class="container">
-        <div class="row-fliud">
-        <h2>Call Me<span class="current_room"></span></h2>
-        </div>
-        <div class="row-fliud">
-            <div class="col-md-6">
-                <p class="input-group">
-                    <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="dt" is-open="popup1.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
-                    <span class="input-group-btn">
-                        <button type="button" class="btn btn-default" ng-click="open1()"><i class="glyphicon glyphicon-calendar"></i></button>
-                    </span>
-                </p>
-            </div>
-        </div>
-
-    </div>
+        
     <div class="row-fliud">
         <div>
             User: {{status}}
@@ -39,7 +68,7 @@
             <h3>Your schedule</h3>
 
 
-            <ul ng-repeat="umeerings in schedule">
+            <ul ng-repeat="mettings in schedule">
 
                 <li ng-if="">
                     <div>
@@ -49,7 +78,7 @@
                                 <img src="{{config.siteUrl}}/image_{{user_connected.profile.primary_compound_photo_sid}}_4.jpg" alt="" border="0" height="82" width="82" />
                             </a>
                         </div>
-                        <span><a ng-click="sendOffer(user_connected.username)"><img src = "./images/video_call_icon.png" class="call_icon"/></a>{{user_connected.username}}</span>
+                        <span><a ng-click="sendOffer(user_connected.username)"><img src = "./images/video_call_icon.png" class="call_icon"/></i></a>{{user_connected.username}}</span>
                         {{user_connected.profile.primary_compound_photo_sid}}
                     </div>
                 </li>   
@@ -58,18 +87,18 @@
         <div class="col-sm-4 col-md-6">
 
             <h3>list of participants</h3>
-            <ul ng-repeat="meetings in schedule">
+            <ul ng-repeat="user in users">
 
                 <li ng-if="">
                     <div>
 
                         <div style="padding: 1px; border: 1px solid #C09788; width: 84px">
-                            <a href="{{config.siteUrl}}/image_{{user_connected.profile.primary_compound_photo_sid}}_4.jpg" class="lightbox">
-                                <img src="{{config.siteUrl}}/image_{{user_connected.profile.primary_compound_photo_sid}}_4.jpg" alt="" border="0" height="82" width="82" />
+                            <a href="{{config.siteUrl}}/profile/{{user.username}}" class="lightbox">
+                                <img src="{{config.siteUrl}}/{{user.avatar}}" alt="" border="0" height="82" width="82" />
                             </a>
                         </div>
-                        <span><a ng-click="sendOffer(user_connected.username)"><img src = "./images/video_call_icon.png" class="call_icon"/></a>{{user_connected.username}}</span>
-                        {{user_connected.profile.primary_compound_photo_sid}}
+                        <span><a ng-click="sendOffer(user.username)"><i class = "icon-phone"></i>{{user.username}}</a></span>
+                        
                     </div>
                 </li>   
             </ul>    
@@ -92,6 +121,21 @@
                     <button id="incomingAccept" class="btn btn-primary" ng-click="sendAnswer()">Accept</button>
                 </div>
             </div>
+        </div>
+    </div>
+    <div>
+        <div class="iphone-frame">
+            <div class="screen-wrapper">
+                <video class="local-video active-video" autoplay id="local-video" muted></video>
+                <div id = "remote-videos-container" class="remote-videos-container"></div>
+                <span>{{remoteUser}}</span>
+            </div>
+        </div>
+        <div>              
+            <button id="sendOfferToAll">Call All</button>
+            <button id="getUserMedia">Start Media</button>
+            <button id="hangupButton">Hang Up</button>
+            <button id="disconnectButton">Disconnect</button>
         </div>
     </div>
 </div>

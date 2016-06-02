@@ -8,7 +8,7 @@
  */
 
 
-CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $filter, config, imagesUpload, Profile, socketService) {
+CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, imagesUpload, Profile, socketService) {
     this.awesomeThings = [
         'HTML5 Boilerplate',
         'AngularJS',
@@ -21,35 +21,35 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
     var disconnectButton = document.getElementById('disconnectButton');
     var rooms = ['room1', 'room2', 'room3'];
     var roomId = 'room1';
-   
-   console.log(socket);
+
+    console.log($routeParams);
     $scope.user = {username: $routeParams.userId};
     $scope.message = {text: ""};
     $scope.connection = {};
-    
+
     $scope.connection.socketid = socket.id;
     $scope.connection.user = {'username': $scope.user.username};
-    $scope.connection.roomId = roomId;  
-    
-    
+    $scope.connection.roomId = roomId;
+
+
     console.log("users connected to this socket");
     console.log(socketService.users);
 
-   
+
     if ($routeParams.roomId)
         roomId = $routeParams.roomId;
     socketService.setConnection($scope.connection);
-    
+
 // toId == received fromId
 
-     
-    
+
+
     var hangup = function () {
         console.log("User Hangup");
         console.log($scope.user.username);
-        
+
         socket.emit('userleave', {room: roomId, username: $scope.user.username})
-        
+
         hangupButton.disabled = true;
         socketService.localStream = null;
         //socket.disconnect();
@@ -70,7 +70,7 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
         //localVideo.remove();
     }
 
-    
+
     var getProfileByUsername = function ()
     {
         console.log($scope.user.username);
@@ -121,7 +121,7 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
 
     $scope.createImageUrl = function (data)
     {
-        
+
         angular.forEach(data, function (value, key)
         {
             console.log(value);
@@ -129,11 +129,11 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
         });
 
     }
-   
+
     $scope.init = function (data) {
         $('#chat_rooms').show();
         socket.emit('init', {room: roomId, username: $scope.user.username, profile: data});
-       
+
         console.log("-------------------------- init function --------------------------");
         console.log($scope);
         // when the client hits ENTER on their keyboard
@@ -149,12 +149,12 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
         console.log("------------ Socket service update users connected------------------")
         $scope.users = users;
         $scope.status = status;
-        //$scope.$apply();
+        $scope.$apply();
     }
 
     hangupButton.disabled = true;
     hangupButton.onclick = hangup;
-   // userMediaButton.onclick = socketService.startUserMedia;
+    // userMediaButton.onclick = socketService.startUserMedia;
     disconnectButton.onclick = disconnect;
     //sendOfferToAll.onclick = sendOfferToAll;
 
@@ -183,8 +183,8 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
 
         socket.emit('switchRoom', {room: room, username: $scope.user.username});
     }
-    
-     $scope.sendOffer = function (toId) {
+
+    $scope.sendOffer = function (toId) {
         console.log('Starting call to');
         console.log(toId);
         $scope.connection.fromId = $scope.user.username;
@@ -194,24 +194,15 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
         if ($scope.user.username && $scope.connection.toId)
         {
             hangupButton.disabled = false;
-            console.log($scope.user.username+'send createOffer start');
+            console.log($scope.user.username + 'send createOffer start');
             // getPeerConnection(connection.toId);
-            
+
             socketService.startUserMedia();
             appendRemoteVideoElement(toId);
-           
+
         } else {
             errors.push("Missing user name");
         }
-
-    }
-    $scope.senddata = function (data, room) {
-        console.log("Send message data")
-        console.log(data);
-        $('#data-' + room).html('');
-        data = {'room': room, 'username': $scope.user.username, 'text': data.text};
-        // tell server to execute 'sendchat' and send along one parameter
-        socket.emit('message', data);
     }
     $scope.formdata = new FormData();
     $scope.sendImages = function ($files)
@@ -243,11 +234,11 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
         $scope.remoteUser = $scope.connection.toId;
         socketService.startUserMedia();
         appendRemoteVideoElement($scope.connection.toId)
-       
+
         console.log("Receive offer: ");
         console.log($scope.connection.type);
     };
-    
+
     getProfileByUsername();
     //$scope.init();
 });

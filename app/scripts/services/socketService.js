@@ -7,8 +7,6 @@ CallMe.factory('socketService', function ($sce, $location, config, $q) {
     var peer = null;
     var peers = [];
     
-   
-    
     var videoConstraints = {
         video: {width: {exact: 320}, height: {exact: 240}},
     }
@@ -23,10 +21,7 @@ CallMe.factory('socketService', function ($sce, $location, config, $q) {
     {
         console.log('------------------- servise set connection');
         connection = conn;
-    }
-    console.log(connection);
-  
-    
+    }   
     var handleMessage = function (data) {
         console.log("Handle message function");
         switch (data.type) {
