@@ -1,0 +1,97 @@
+<style type="text/css">
+    div[data-*] {
+        cursor: pointer;
+        width: 100%;
+    }
+
+</style>
+<div ng-controller = "CallCtrl">
+    <div class="container">
+        <div class="row-fliud">
+        <h2>Call Me<span class="current_room"></span></h2>
+        </div>
+        <div class="row-fliud">
+            <div class="col-md-6">
+                <p class="input-group">
+                    <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="dt" is-open="popup1.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="open1()"><i class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+                </p>
+            </div>
+        </div>
+
+    </div>
+    <div class="row-fliud">
+        <div>
+            User: {{status}}
+            {{user}}
+        </div>    
+    </div>
+
+    <div class = "row-fliud" id = "chat_rooms"> 
+        <div class="col-sm-3 col-md-6">
+
+
+
+        </div>
+        <div class="col-sm-4 col-md-6">
+            <h3>Your schedule</h3>
+
+
+            <ul ng-repeat="umeerings in schedule">
+
+                <li ng-if="">
+                    <div>
+
+                        <div style="padding: 1px; border: 1px solid #C09788; width: 84px">
+                            <a href="{{config.siteUrl}}/image_{{user_connected.profile.primary_compound_photo_sid}}_4.jpg" class="lightbox">
+                                <img src="{{config.siteUrl}}/image_{{user_connected.profile.primary_compound_photo_sid}}_4.jpg" alt="" border="0" height="82" width="82" />
+                            </a>
+                        </div>
+                        <span><a ng-click="sendOffer(user_connected.username)"><img src = "./images/video_call_icon.png" class="call_icon"/></a>{{user_connected.username}}</span>
+                        {{user_connected.profile.primary_compound_photo_sid}}
+                    </div>
+                </li>   
+            </ul>    
+        </div>
+        <div class="col-sm-4 col-md-6">
+
+            <h3>list of participants</h3>
+            <ul ng-repeat="meetings in schedule">
+
+                <li ng-if="">
+                    <div>
+
+                        <div style="padding: 1px; border: 1px solid #C09788; width: 84px">
+                            <a href="{{config.siteUrl}}/image_{{user_connected.profile.primary_compound_photo_sid}}_4.jpg" class="lightbox">
+                                <img src="{{config.siteUrl}}/image_{{user_connected.profile.primary_compound_photo_sid}}_4.jpg" alt="" border="0" height="82" width="82" />
+                            </a>
+                        </div>
+                        <span><a ng-click="sendOffer(user_connected.username)"><img src = "./images/video_call_icon.png" class="call_icon"/></a>{{user_connected.username}}</span>
+                        {{user_connected.profile.primary_compound_photo_sid}}
+                    </div>
+                </li>   
+            </ul>    
+        </div>
+    </div>
+    <div class = "row-fluid">
+        <div class="modal modal-md" id="incomingCall" tabindex="-1" role="dialog" aria-labelledby="incomingCall" aria-hidden="true">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3>Incoming Call</h3>
+                </div>
+                <div class="modal-body">
+                    <img src="images/incoming.png"/><br/><p>&nbsp;</p>
+                    <p>You have an incoming call from <span id="incomingUser"></span></p>
+                    <audio id="incomingRing" src="habibi.mp3" loop/>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn" data-dismiss="modal" aria-hidden="true">Reject</button>
+                    <button id="incomingAccept" class="btn btn-primary" ng-click="sendAnswer()">Accept</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

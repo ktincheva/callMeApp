@@ -8,7 +8,7 @@
  */
 var socket = io.connect(location.protocol + '//' + location.host);
 
-CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $filter, config, imagesUpload, Profile, socketService) {
+CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $scope, $filter, config, imagesUpload, Profile, socketService) {
     this.awesomeThings = [
         'HTML5 Boilerplate',
         'AngularJS',
@@ -304,7 +304,10 @@ CallMe.controller('CallCtrl', function ($sce, $location, $routeParams, $scope, $
     });
 
 
-    
+    socket.on('connect', function () {
+        console.log("Connect to the chat")
+        status = 'connected';
+    });
 
     socket.on('connected', function (data) {
         console.log("If Succcesfuly connected update users connected");

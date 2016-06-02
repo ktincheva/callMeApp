@@ -17,11 +17,8 @@ CallMe.factory('socketService', function ($sce, $location, config, $q) {
     var connection = {};
     
     
-   var localStream = null;
-   var socket = null; 
+   var localStream = null; 
     
-    var socket = io.connect(location.protocol + '//' + location.host);
-    console.log(socket.id);
     var setConnection = function(conn)
     {
         console.log('------------------- servise set connection');
@@ -165,7 +162,7 @@ CallMe.factory('socketService', function ($sce, $location, config, $q) {
                 'px,  videoHeight: ' + this.videoHeight + 'px');
     });
     return {
-        'socket': socket,
+        
         'connection': connection,
         'localStream': localStream,
         'peer': peer,

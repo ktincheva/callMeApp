@@ -29,15 +29,19 @@ var CallMe = angular.module('callMeApp', [
                         controllerAs: 'main'
                     })
                     .when('/chat/:roomId', {
-                        templateUrl: 'views/chat.html',
-                        controller: 'CallCtrl'
+                        templateUrl: 'views/videoCall.html',
+                        controller: 'videoCallCtrl'
                     })
                     .when('/chat/:roomId/:userId', {
-                        templateUrl: 'views/chat.html',
-                        controller: 'CallCtrl'
+                        templateUrl: 'views/videoCall.html',
+                        controller: 'videoCallCtrl'
                     })
                     .when('/chat/:roomId/:userId/:remoteUserId', {
-                        templateUrl: 'views/chat.html',
+                        templateUrl: 'views/videoCall.html',
+                        controller: 'videoCallCtrl'
+                    })
+                       .when('/call/:roomId/:userId', {
+                        templateUrl: 'views/call.html',
                         controller: 'CallCtrl'
                     })
                     .otherwise({

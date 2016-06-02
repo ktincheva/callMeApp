@@ -1,4 +1,4 @@
-var PeerConnection = function (localStream, connection, socket)
+var PeerConnection = function (localStream, connection)
 {
 
     var iceConfig = {'iceServers': [{
@@ -13,7 +13,7 @@ var PeerConnection = function (localStream, connection, socket)
     };
 
     var connection = connection;
-    var socket = socket;
+   
     console.log(socket)
     console.log("Create new RTCPeerConnection");
 
@@ -22,8 +22,6 @@ var PeerConnection = function (localStream, connection, socket)
         console.log(event.candidate);
         console.log(socket);
         if (event.candidate) {
-            
-            socket.emit('msg', {room: connection.roomId, type: 'ice', error: 'somthing whent wrong when add ice candidate'});
             socket.emit('msg', {room: connection.roomId, type: 'ice', ice: event.candidate, user: connection.user.username});
         }
     }
