@@ -19,7 +19,8 @@ var CallMe = angular.module('callMeApp', [
             'ui.bootstrap',
             'ngMessages',
             'ui.bootstrap.tpls',
-            'ui.bootstrap.modal'
+            'ui.bootstrap.modal',
+            
         ])
         .config(function ($routeProvider) {
             $routeProvider
@@ -52,13 +53,13 @@ var CallMe = angular.module('callMeApp', [
             // Change it for your app URL
           //  SIGNALIG_SERVER_URL: 'https://10.2.2.201:5555',
            SIGNALIG_SERVER_URL: 'https://192.168.1.6:5555',
-           max_connections: 5,
+           max_connections: 50,
            apiUrl: "https://10.2.2.201/chatApi/",
            siteUrl: "https://10.2.2.201",
 
         })
         .run(function () {
-
+            
 
         });
         ;

@@ -64,23 +64,23 @@ CallMe.factory('socketService', function ($sce, $location, config, $q) {
         }
     }
        
- var receiveAnswer = function (data)
+    var receiveAnswer = function (data)
     {
         console.log(connection);
         console.log(data);
         if (data.toId === connection.fromId)
         {
-           
+
             console.log("Received SDP answer");
-           
+
             connection.fromId = data.toId;
             connection.toId = data.fromId;
             connection.sdp = data.sdp;
             connection.type = 'answer-received';
             peer.setRemoteDescription(new RTCSessionDescription(data.sdp));
-           
+
         }
-        }
+    }
    
    var startUserMedia = function () {
         console.log("Start user media: ");
