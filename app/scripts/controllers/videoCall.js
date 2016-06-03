@@ -8,7 +8,7 @@
  */
 //var socket = io.connect(location.protocol + '//' + location.host);
 
-CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $scope, $filter, config, imagesUpload, Profile, socketService) {
+CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $scope, $filter, config, imagesUpload, Profile, socketService, video,  ngVideoOptions) {
     this.awesomeThings = [
         'HTML5 Boilerplate',
         'AngularJS',
@@ -29,6 +29,11 @@ CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $sco
     var rooms = ['room1', 'room2', 'room3'];
     var roomId = 'room1';
 
+    var videoConstr = {
+        audio: true,
+        video: true,
+    }
+    
     $scope.user = {username: $routeParams.userId};
     $scope.message = {text: ""};
     $scope.connection = {};
@@ -43,7 +48,7 @@ CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $sco
     if ($routeParams.roomId)
         roomId = $routeParams.roomId;
     socketService.setConnection($scope.connection);
-
+    ngVideoOptions.BUFFER_COLOUR = '#00f';
 // toId == received fromId
 
     $scope.sendOffer = function (toId) {
@@ -58,7 +63,7 @@ CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $sco
             hangupButton.disabled = false;
             console.log($scope.user.username + 'send createOffer start');
             // getPeerConnection(connection.toId);
-
+            socketService.setVideoConstraints(videoConstr);
             socketService.startUserMedia();
             appendRemoteVideoElement(toId);
 
@@ -288,6 +293,12 @@ CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $sco
         console.log("Receive offer: ");
         console.log($scope.connection.type);
     };
+     $scope.startUserMedia = function()
+    {
+        socketService.setVideoConstraints(videoConstr);
+        socketService.startUserMedia();
+    }
+    
     getProfileByUsername();
    
     //$scope.init();

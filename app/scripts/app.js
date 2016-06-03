@@ -21,7 +21,7 @@ var CallMe = angular.module('callMeApp', [
             'ngAnimate',
             'ui.bootstrap.tpls',
             'ui.bootstrap.modal',
-            
+            'ngVideo',
         ])
         .config(function ($routeProvider) {
             $routeProvider

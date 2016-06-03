@@ -5,7 +5,7 @@
     }
 
 </style>
-<div ng-controller = "CallCtrl">
+<div ng-controller = "videoCallCtrl">
     <div class="container">
 
         <div class="row-fliud">
@@ -40,14 +40,24 @@
                 <div>
                     <div class="iphone-frame">
                         <div class="screen-wrapper">
-                            <video class="local-video active-video" autoplay id="local-video" muted></video>
+                          
+                            
+                            <section ng-video class="local-video active-video" id="local-video">
+                              <video vi-screen></video>
+                              <section vi-controls>
+                                  <a vi-controls-play>Play</a>
+                                  <a vi-controls-pause>Pause</a>
+                              </section>
+                            </section>
+                            
+                            
                             <div id = "remote-videos-container" class="remote-videos-container"></div>
                             <span>{{remoteUser}}</span>
                         </div>
                     </div>
                     <div>              
                         <button id="sendOfferToAll">Call All</button>
-                        <button id="getUserMedia">Start Media</button>
+                        <button id="getUserMedia" ng-click ="startUserMedia()">Start Media</button>
                         <button id="hangupButton">Hang Up</button>
                         <button id="disconnectButton">Disconnect</button>
                     </div>

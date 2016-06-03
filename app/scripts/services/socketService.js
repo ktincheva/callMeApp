@@ -8,7 +8,8 @@ CallMe.factory('socketService', function ($sce, $location, config, $q) {
     var peers = [];
     
     var videoConstraints = {
-        video: {width: {exact: 320}, height: {exact: 240}},
+        audio: true,
+        video: true,
     }
     
     var localVideo = document.getElementById('local-video');
@@ -21,7 +22,13 @@ CallMe.factory('socketService', function ($sce, $location, config, $q) {
     {
         console.log('------------------- servise set connection');
         connection = conn;
-    }   
+    } 
+    
+    var setVideoConstraints = function(videoConstr)
+    {
+        console.log(videoConstr);
+        videoConstraints = videoConstr;
+    }
     var handleMessage = function (data) {
         console.log("Handle message function");
         switch (data.type) {
@@ -98,6 +105,7 @@ CallMe.factory('socketService', function ($sce, $location, config, $q) {
     var getStream = function (stream) {
         localStream = stream;
         var streamUrl = window.URL.createObjectURL(stream);
+        
         localVideo.src = streamUrl;
         localVideo.srcObject = stream;
         console.log('Add local stream to the peer connection');
@@ -165,5 +173,6 @@ CallMe.factory('socketService', function ($sce, $location, config, $q) {
         'startUserMedia': startUserMedia,
         'setConnection': setConnection,
         'handleMessage': handleMessage,
+        'setVideoConstraints': setVideoConstraints,
     }
 });
