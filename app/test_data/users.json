@@ -1,46 +1,157 @@
 {
-    "users":[
-                {"username": "user1",
-                    "firstName": "John",
-                    "lastName": "Doe",
-                    "email": "test1@example.com",
-                    "avatar" : "avatar1.png",
-                    "schedule": {
-                        "meeting": {
-                            "theme": "Theme 1",
-                            "shedule_date": "2016-06-15 16:40:00",
-                            "participants": {"user": "user1", "user":"user2"}
+    "users": [
+        {
+            "username": "user1",
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "test1@example.com",
+            "avatar": "avatar1.png",
+            "schedule": [
+                {
+                    "meeting_id": 1,
+                    "theme": "Theme 1",
+                    "schedule_date": "2016-06-15 16:40:00",
+                    "participants": [
+                        {
+                            "username": "user2",
+                            "firstName": "John",
+                            "lastName": "Doe",
+                            "email": "test3@example.com",
+                            "avatar": "avatar3.png"
+                        }, {
+                            "username": "user3",
+                            "firstName": "John",
+                            "lastName": "Doe",
+                            "email": "test3@example.com",
+                            "avatar": "avatar3.png"
                         }
-                    }
+                    ]
                 },
                 {
-                    "username": "user2",
-                    "firstName": "John",
-                    "lastName": "Doe",
-                    "email": "test2@example.com",
-                    "avatar" : "avatar2.png",
-                    "schedule": {
-                        "meeting": {
-                            "theme": "Theme 2",
-                            "shedule_date": "2016-06-15 19:50:00",
-                            "participants": {"user": "user2", "user":"user3"}
+                    "meeting_id": 2,
+                    "theme": "Theme 3",
+                    "schedule_date": "2016-06-16 16:40:00",
+                    "participants": [
+                        {
+                            "username": "user1",
+                            "firstName": "John",
+                            "lastName": "Doe",
+                            "email": "test1@example.com",
+                            "avatar": "avatar2.png"
+                        }, {
+                            "username": "user3",
+                            "firstName": "John",
+                            "lastName": "Doe",
+                            "email": "test3@example.com",
+                            "avatar": "avatar3.png"
                         }
-                    }
+                    ]
                 },
-        
                 {
-                    "username": "user3",
-                    "firstName": "John",
-                    "lastName": "Doe",
-                    "email": "test3@example.com",
-                    "avatar" : "avatar3.png",
-                    "schedule": {
-                        "meeting": {
-                            "theme": "Theme 3",
-                            "shedule_date": "2016-06-15 10:50:00",
-                            "participants": {"user":"user1","user": "user2", "user":"user3"}
+                    "meeting_id": 3,
+                    "theme": "Theme 4",
+                    "schedule_date": "2016-06-17 16:40:00",
+                    "participants": [
+                        {
+                            "username": "user1",
+                            "firstName": "John",
+                            "lastName": "Doe",
+                            "email": "test1@example.com",
+                            "avatar": "avatar1.png"
+                        }, {
+                            "username": "user2",
+                            "firstName": "John",
+                            "lastName": "Doe",
+                            "email": "test3@example.com",
+                            "avatar": "avatar2.png"
                         }
-                    }
+                    ]
                 }
+            ]
+        },
+        {
+            "username": "user2",
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "test2@example.com",
+            "avatar": "avatar2.png",
+            "schedule": [
+                {
+                    "meeting_id": 5,
+                    "theme": "Theme 2",
+                    "schedule_date": "2016-06-15 19:50:00",
+                    "participants": [{
+                            "username": "user1",
+                            "firstName": "John",
+                            "lastName": "Doe",
+                            "email": "test3@example.com",
+                            "avatar": "avatar1.png"
+                        }, {
+                            "username": "user3",
+                            "firstName": "John",
+                            "lastName": "Doe",
+                            "email": "test3@example.com",
+                            "avatar": "avatar3.png"
+                        }
+
+                    ]
+
+                }
+            ]
+        },
+        {
+            "username": "user3",
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "test3@example.com",
+            "avatar": "avatar3.png",
+            "schedule": [{
+                    "meeting_id": 6,
+                    "theme": "Theme 3",
+                    "schedule_date": "2016-06-15 10:50:00",
+                    "participants": [{
+                            "username": "user3",
+                            "firstName": "John",
+                            "lastName": "Doe",
+                            "email": "test3@example.com",
+                            "avatar": "avatar3.png"
+                        }, {
+                            "username": "user3",
+                            "firstName": "John",
+                            "lastName": "Doe",
+                            "email": "test3@example.com",
+                            "avatar": "avatar3.png"
+                        }
+
+                    ]
+                },
+                {
+                    "meeting_id": 8,
+                    "theme": "Theme 3",
+                    "schedule_date": "2016-06-15 10:50:00",
+                    "participants": [
+                        {
+                            "username": "user1",
+                            "firstName": "John",
+                            "lastName": "Doe",
+                            "email": "test1@example.com",
+                            "avatar": "avatar1.png"
+                        }, {
+                            "username": "user3",
+                            "firstName": "John",
+                            "lastName": "Doe",
+                            "email": "test3@example.com",
+                            "avatar": "avatar3.png"
+                        }, {
+                            "username": "user3",
+                            "firstName": "John",
+                            "lastName": "Doe",
+                            "email": "test3@example.com",
+                            "avatar": "avatar3.png"
+                        }
+                    ]
+                }
+            ]
+        }
     ]
 }

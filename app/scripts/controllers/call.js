@@ -14,19 +14,25 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
         'AngularJS',
         'Karma'
     ];
-    Utils.debug_log($routeParams);
-        
+    Utils.debug_log($routeParams, "Route parameters received");
+
     //var startButton = document.getElementById('startButton');
     //var socket = socketService.socket;
     var hangupButton = document.getElementById('hangupButton');
     var disconnectButton = document.getElementById('disconnectButton');
     var rooms = ['room1', 'room2', 'room3'];
     var roomId = 'room1';
+    var profiles = {};
+    var profile = {};
+
     var videoConst = {
         audio: true,
         video: false,
     }
-    Utils.debug_log($routeParams);
+     var offerOpt = {
+        offerToReceiveAudio: 1,
+        offerToReceiveVideo: 0
+    };
     $scope.user = {username: $routeParams.userId};
     $scope.message = {text: ""};
     $scope.connection = {};
@@ -35,8 +41,7 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
     $scope.connection.user = {'username': $scope.user.username};
     $scope.connection.roomId = roomId;
 
-     Utils.debug_log("users connected to this socket");
-    Utils.debug_log(socketService.users);
+    Utils.debug_log(socketService.users,"users connected to this socket");
 
     if ($routeParams.roomId)
         roomId = $routeParams.roomId;
@@ -72,31 +77,26 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
         //localVideo.remove();
     }
 
-
-    var getProfileByUsername = function ()
+    var getProfileByUsername = function (username)
     {
-        Utils.debug_log($scope.user.username);
-        var profile = Profile.getProfileByUsernameJson($scope.user.username)
+        
+        Profile.getProfileByUsernameJson(username)
                 .success(function (data) {
-
+                    
                     var user = $filter('filter')(data.users, function (item) {
-
-                        return item.username === $scope.user.username;
+                        Utils.debug_log(username, "Get profile of user connected");
+                        return item.username === username;
                     })[0];
-
-                    Utils.debug_log("Get user profileByUserName");
-                    Utils.debug_log(user);
-                    if (user)
-                        $scope.init(user);
-
+                    Utils.debug_log(user, "User Profile");
+                    profile = user;
+                     Utils.debug_log(profile, "User profile")
+                    $scope.init(user)
                     // should send data to the server
                 })
                 .error(function (data) {
                     //shpould log errors
                     Utils.debug_log(data);
-                })
-        Utils.debug_log(profile.username);
-
+                });
     }
     var appendRemoteVideoElement = function (id)
     {
@@ -119,8 +119,7 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
             });
         }
     }
-
-
+ 
     $scope.createImageUrl = function (data)
     {
 
@@ -129,15 +128,16 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
             Utils.debug_log(value);
             $scope.message.text += '<a href = "' + config.siteUrl + '/image_' + value.photo_sid + '_1.jpg"> click to see picture </a>';
         });
-
     }
 
     $scope.init = function (data) {
-        $('#chat_rooms').show();
+       
+        
+        Utils.debug_log(data);
+        $scope.user = data;
+        $scope.schedule = data.schedule;
+        
         socket.emit('init', {room: roomId, username: $scope.user.username, profile: data});
-
-        Utils.debug_log("-------------------------- init function --------------------------");
-        Utils.debug_log($scope);
         // when the client hits ENTER on their keyboard
         $('.message').keypress(function (e) {
             if (e.which == 13) {
@@ -158,7 +158,7 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
     hangupButton.onclick = hangup;
     // userMediaButton.onclick = socketService.startUserMedia;
     disconnectButton.onclick = disconnect;
-    //sendOfferToAll.onclick = sendOfferToAll;
+    
 
     $scope.rooms = rooms;
     $scope.config = config;
@@ -179,16 +179,8 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
 
         // socket.emit('adduser', $scope.user.username);
     }
-    $scope.switchRoom = function (room) {
-        Utils.debug_log(socket);
-        Utils.debug_log('switch to room: ' + room)
-
-        socket.emit('switchRoom', {room: room, username: $scope.user.username});
-    }
-
-    $scope.sendOffer = function (toId) {
-        Utils.debug_log('Starting call to');
-        Utils.debug_log(toId);
+     $scope.sendOffer = function (toId) {
+        Utils.debug_log(toId, 'Starting call to');
         $scope.connection.fromId = $scope.user.username;
         $scope.connection.toId = toId;
         $scope.connection.type = 'offer'
@@ -199,6 +191,7 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
             Utils.debug_log($scope.user.username + 'send createOffer start');
             // getPeerConnection(connection.toId);
             socketService.setVideoConstraints(videoConst);
+            socketService.setOfferOptions(offerOpt);
             socketService.startUserMedia();
             appendRemoteVideoElement(toId);
 
@@ -206,29 +199,6 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
             errors.push("Missing user name");
         }
     }
-    $scope.formdata = new FormData();
-    $scope.sendImages = function ($files)
-    {
-        Utils.debug_log($files);
-        angular.forEach($files, function (value, key) {
-            Utils.debug_log('file: ' + value + ' key ' + key);
-            $scope.formdata.append(key, value);
-        });
-    }
-    $scope.uploadImages = function ()
-    {
-        imagesUpload.uploadImages($scope.formdata)
-                .then(function (data) {
-                    Utils.debug_log($scope.message);
-                    $scope.createImageUrl(data);
-
-                })
-                .catch(function (error) {
-                    //shpould log errors
-                    Utils.debug_log(error);
-                })
-    }
-
     $scope.sendAnswer = function ()
     {
         Utils.debug_log("Send Answer to");
@@ -240,14 +210,48 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
         Utils.debug_log("Receive offer: ");
         Utils.debug_log($scope.connection.type);
     };
-    
+
     $scope.startUserMedia = function()
     {
         console.log(videoConst);
         socketService.setVideoConstraints(videoConst);
         socketService.startUserMedia();
     }
-
-    getProfileByUsername();
-    //$scope.init();
+    $scope.showParticipants = function(meeting_id)
+    {
+        $scope.switchMeeting(meeting_id)
+         return $filter('filter')($scope.user.schedule, function (meeting) {return meeting.meeting_id === meeting_id;})[0];              
+    }
+    
+    $scope.switchMeeting = function(id)
+    {
+        var meeting = $(".meeting_"+id);
+        Utils.debug_log(id,"show participants");
+           
+         var meetings  = $(".participants");
+         meetings.each(function(){
+             if($(this).hasClass("active")) {
+                 $(this).removeClass("active");
+             }
+             $(this).addClass("deactivated"); 
+         })
+         meeting.removeClass("deactivated");
+         meeting.addClass("active");
+    }
+    
+    getProfileByUsername($routeParams.userId);
+    angular.element(document).ready(function () {
+        
+        var meeting = $(".participants").filter(function(index){
+                console.log(index);
+                return index==0;
+            });
+                    meeting.removeClass("deactivated").addClass("active");
+            Utils.debug_log(meeting, "When document ready");
+    });
+    
+       AppEmitter.on('msg', function (data) {
+        Utils.debug_log(data)
+        socketService.handleMessage(data); 
+    }); 
 });

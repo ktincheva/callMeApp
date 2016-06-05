@@ -9,7 +9,7 @@ var PeerConnection = function (localStream, connection)
 
     var offerOptions = {
         offerToReceiveAudio: 1,
-        offerToReceiveVideo: 1
+        offerToReceiveVideo: 0
     };
 
     var connection = connection;

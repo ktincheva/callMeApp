@@ -3,50 +3,61 @@
         cursor: pointer;
         width: 100%;
     }
+    .full button span {
+        background-color: limegreen;
+        border-radius: 32px;
+        color: black;
+    }
+    .partially button span {
+        background-color: orange;
+        border-radius: 32px;
+        color: black;
+    }   
+    .active {
+        display: block;
+    }
 
-</style>
-<style>
-  .full button span {
-    background-color: limegreen;
-    border-radius: 32px;
-    color: black;
-  }
-  .partially button span {
-    background-color: orange;
-    border-radius: 32px;
-    color: black;
-  }
+    .deactivated {
+        display: none;
+    }
+    .table-hover {
+        cursor: pointer;
+    }
+    a {
+     cursor: pointer;
+     
+    }
 </style>
 <div class="container" ng-controller = "CallCtrl">
-        <div class="row-fliud">
-            <h2>Call Me<span class="current_room"></span></h2>
-            <span>
-                
-                <a ng-click="startUserMedia()">
-                    <i class = "glyphicon glyphicon-phone"></i>
-                </a>
-            </span>
-        </div>
+    <div class="row-fliud"> 
+        <h2>Call Me<span class="current_room"></span></h2>
+         <a ng-click="startUserMedia()">
+               <i class = "icon-large icon-microphone"></i>
+            </a>
+        <p>Start microphone</p>
+           
+        
+    </div>
 </div>
 <div ng-controller="DatepickerPopupCtrl">
-    <pre>Shedule date: <em>{{dt | date:'fullDate' }}</em></pre>
+    <pre>Shedule date: <em>{{dt| date:'fullDate' }}</em></pre>
 
     <h4></h4>
     <div class="row">
-      <div class="col-sm-3 col-md-6">
-        <p class="input-group">
-          <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="dt" is-open="popup1.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
-          <span class="input-group-btn">
-            <button type="button" class="btn btn-default" ng-click="open1()"><i class="glyphicon glyphicon-calendar">asdaadad</i></button>
-          </span>
-        </p>
-      </div>
-       <div class="col-sm-3 col-md-6">
-         <select class="form-control" ng-model="format" ng-options="f for f in formats"><option></option></select>
-      </div>
+        <div class="col-sm-3 col-md-6">
+            <p class="input-group">
+                <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="dt" is-open="popup1.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" ng-click="open1()"><i class="glyphicon glyphicon-calendar"></i></button>
+                </span>
+            </p>
+        </div>
+        <div class="col-sm-3 col-md-6">
+            <select class="form-control" ng-model="format" ng-options="f for f in formats"><option></option></select>
+        </div>
     </div>
     <div class="row">
-      
+
     </div>
     <hr />
     <button type="button" class="btn btn-sm btn-info" ng-click="today()">Today</button>
@@ -56,95 +67,96 @@
 </div>
 <div ng-controller = "CallCtrl">
     <div class="container">
-        
-    <div class="row-fliud">
+        <div class="row-fliud">
+
+            <div class="col-sm-12 col-md-12">
+                <h3>Your profile</h3>
+                <div style="padding: 1px; border: 1px solid #C09788; width: 84px">
+                    <a href="{{config.siteUrl}}/profile/{{user.avatar}}" class="">
+                        <img src="./images/{{user.avatar}}" alt="" border="0" height="128" width="128" />
+                    </a>
+                </div>
+                <p>User: {{status}} </p>
+                <p>Username: {{user.username}}</p>
+                <p>First name: {{user.firstName}}</p>
+                <p>Last name: {{user.lastName}}</p>
+                <p>email: {{user.email}}</p>
+
+            </div>
+            <div id="conversation-{{room}}"></div> 
+            <div class="col-sm-12 col-md-12">
+                <h3>Your schedule</h3>
+
+                <table class="table table-striped table-hover">
+
+                    <tr>
+                    </tr>    
+                    <tr ng-repeat="meeting in schedule" ng-click="showParticipants(meeting.meeting_id)">
+                        <td>{{meeting.meeting_id}}</td>
+                        <td>{{meeting.theme}}</td>
+                        <td>{{meeting.schedule_date}}</td> 
+                    </tr> 
+                </table>
+            </div>
+            <div class="col-sm-12 col-md-12 meetings">
+                <h3>list of participants</h3>
+                <ul ng-repeat="meeting in schedule" class="participants meeting_{{meeting.meeting_id}} deactivated">
+                    <li class="participant">
+                        <h2>{{meeting.theme}}</h2>
+                        <div  ng-repeat="participant in meeting.participants">
+                            <div style="padding: 1px; border: 1px solid #C09788; width: 84px">
+                                <a href="profile/{{user.avatar}}" class="">
+                                    <img src="./images/{{participant.avatar}}" alt="" border="0" height="128" width="128" />
+                                </a>
+                            </div>
+                            <p>User: {{participant.status}} </p>
+                            <p>Username: {{participant.username}}</p>
+                            <p>First name: {{participant.firstName}}</p>
+                            <p>Last name: {{participant.lastName}}</p>
+                            <p>email: {{participant.email}}</p>
+                            <span><a ng-click="sendOffer(participant.username)"><i class = "glyphicon glyphicon-phone"></i>{{participant.username}}</a></span> 
+                        </div>
+                    </li>   
+                </ul>
+
+            </div>
+        </div>
+        <div class = "row-fluid">
+            <div class="modal modal-md" id="incomingCall" tabindex="-1" role="dialog" aria-labelledby="incomingCall" aria-hidden="true">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h3>Incoming Call</h3>
+                    </div>
+                    <div class="modal-body">
+                        <img src="images/incoming.png"/><br/><p>&nbsp;</p>
+                        <p>You have an incoming call from <span id="incomingUser"></span></p>
+                        <audio id="incomingRing" src="habibi.mp3" loop/>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn" data-dismiss="modal" aria-hidden="true">Reject</button>
+                        <button id="incomingAccept" class="btn btn-primary" ng-click="sendAnswer()">Accept</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div>
-            User: {{status}}
-            {{user}}
-        </div>    
-    </div>
+            <div class="iphone-frame">
+                <div class="screen-wrapper">
 
-    <div class = "row-fliud" id = "chat_rooms"> 
-        <div class="col-sm-3 col-md-6">
-
-
-
-        </div>
-        <div class="col-sm-4 col-md-6">
-            <h3>Your schedule</h3>
-
-
-            <ul ng-repeat="mettings in schedule">
-
-                <li ng-if="">
-                    <div>
-
-                        <div style="padding: 1px; border: 1px solid #C09788; width: 84px">
-                            <a href="{{config.siteUrl}}/image_{{user_connected.profile.primary_compound_photo_sid}}_4.jpg" class="lightbox">
-                                <img src="{{config.siteUrl}}/image_{{user_connected.profile.primary_compound_photo_sid}}_4.jpg" alt="" border="0" height="82" width="82" />
-                            </a>
-                        </div>
-                        <span><a ng-click="sendOffer(user_connected.username)"><img src = "./images/video_call_icon.png" class="call_icon"/></i></a>{{user_connected.username}}</span>
-                        {{user_connected.profile.primary_compound_photo_sid}}
-                    </div>
-                </li>   
-            </ul>    
-        </div>
-        <div class="col-sm-4 col-md-6">
-
-            <h3>list of participants</h3>
-            <ul ng-repeat="user in users">
-
-                <li ng-if="">
-                    <div>
-
-                        <div style="padding: 1px; border: 1px solid #C09788; width: 84px">
-                            <a href="{{config.siteUrl}}/profile/{{user.username}}" class="lightbox">
-                                <img src="{{config.siteUrl}}/{{user.avatar}}" alt="" border="0" height="82" width="82" />
-                            </a>
-                        </div>
-                        <span><a ng-click="sendOffer(user.username)"><i class = "icon-phone"></i>{{user.username}}</a></span>
-                        
-                    </div>
-                </li>   
-            </ul>    
-        </div>
-    </div>
-    <div class = "row-fluid">
-        <div class="modal modal-md" id="incomingCall" tabindex="-1" role="dialog" aria-labelledby="incomingCall" aria-hidden="true">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h3>Incoming Call</h3>
-                </div>
-                <div class="modal-body">
-                    <img src="images/incoming.png"/><br/><p>&nbsp;</p>
-                    <p>You have an incoming call from <span id="incomingUser"></span></p>
-                    <audio id="incomingRing" src="habibi.mp3" loop/>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn" data-dismiss="modal" aria-hidden="true">Reject</button>
-                    <button id="incomingAccept" class="btn btn-primary" ng-click="sendAnswer()">Accept</button>
+                    <audio class="local-video active-video" autoplay id="local-video" muted>
+                        <p>Your browser does not support the <code>audio</code> element.</p>
+                    </audio>
+                    <div id = "remote-videos-container" class="remote-videos-container"></div>
+                    <span>{{remoteUser}}</span>
                 </div>
             </div>
-        </div>
-    </div>
-    <div>
-        <div class="iphone-frame">
-            <div class="screen-wrapper">
-               
-                <audio class="local-video active-video" autoplay id="local-video" muted>
-                    <p>Your browser does not support the <code>audio</code> element.</p>
-                </audio>
-                <div id = "remote-videos-container" class="remote-videos-container"></div>
-                <span>{{remoteUser}}</span>
+            <div>              
+                <button id="sendOfferToAll">Call All</button>
+                <button id="getUserMedia" ng-click ="startUserMedia()">Start Media</button>
+                <button id="hangupButton">Hang Up</button>
+                <button id="disconnectButton">Disconnect</button>
             </div>
-        </div>
-        <div>              
-            <button id="sendOfferToAll">Call All</button>
-            <button id="getUserMedia" ng-click ="startUserMedia()">Start Media</button>
-            <button id="hangupButton">Hang Up</button>
-            <button id="disconnectButton">Disconnect</button>
         </div>
     </div>
 </div>

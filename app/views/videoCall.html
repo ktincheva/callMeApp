@@ -40,17 +40,7 @@
                 <div>
                     <div class="iphone-frame">
                         <div class="screen-wrapper">
-                          
-                            
-                            <section ng-video class="local-video active-video" id="local-video">
-                              <video vi-screen></video>
-                              <section vi-controls>
-                                  <a vi-controls-play>Play</a>
-                                  <a vi-controls-pause>Pause</a>
-                              </section>
-                            </section>
-                            
-                            
+                            <video class="local-video active-video" autoplay id="local-video" muted></video>
                             <div id = "remote-videos-container" class="remote-videos-container"></div>
                             <span>{{remoteUser}}</span>
                         </div>

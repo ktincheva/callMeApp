@@ -11,6 +11,10 @@ CallMe.factory('socketService', function ($sce, $location, config, $q) {
         audio: true,
         video: true,
     }
+     var offerOptions = {
+        offerToReceiveAudio: 1,
+        offerToReceiveVideo: 1
+    };
     
     var localVideo = document.getElementById('local-video');
     var connection = {};
@@ -24,7 +28,12 @@ CallMe.factory('socketService', function ($sce, $location, config, $q) {
         connection = conn;
     } 
     
-    var setVideoConstraints = function(videoConstr)
+    var setOfferOptions = function(options)
+    {
+        Utils.debug_log(options, "Set offer options");
+        offerOptions = options;
+    }
+     var setVideoConstraints = function(videoConstr)
     {
         console.log(videoConstr);
         videoConstraints = videoConstr;
@@ -174,5 +183,6 @@ CallMe.factory('socketService', function ($sce, $location, config, $q) {
         'setConnection': setConnection,
         'handleMessage': handleMessage,
         'setVideoConstraints': setVideoConstraints,
+        'setOfferOptions': setOfferOptions,
     }
 });
