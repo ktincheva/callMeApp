@@ -6,7 +6,6 @@
  * # ChatCtrl
  * Controller of the publicApp
  */
-//var socket = io.connect(location.protocol + '//' + location.host);
 
 CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $scope, $filter, config, imagesUpload, Profile, socketService, video,  ngVideoOptions) {
     this.awesomeThings = [
@@ -38,7 +37,7 @@ CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $sco
     $scope.message = {text: ""};
     $scope.connection = {};
 
-    $scope.connection.socketid = socket.id;
+    
     $scope.connection.user = {'username': $scope.user.username};
     $scope.connection.roomId = roomId;
 
@@ -112,7 +111,7 @@ CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $sco
                     console.log(user);
                     if (user)
                         $scope.init(user);
-
+                        
                     // should send data to the server
                 })
                 .error(function (data) {
@@ -192,11 +191,11 @@ CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $sco
     }
     
     var updateUsersConnected = function (users, status) {
-        console.log("------------ Socket service update users connected------------------")
+        console.log("------------ Update users connected------------------")
         console.log(users)
         $scope.users = users;
         $scope.status = status;
-        $scope.$apply();
+       $scope.$apply();
     }
     
     
@@ -246,9 +245,7 @@ CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $sco
         // socket.emit('adduser', $scope.user.username);
     }
     $scope.switchRoom = function (room) {
-        console.log(socket);
         console.log('switch to room: ' + room)
-
         socket.emit('switchRoom', {room: room, username: $scope.user.username});
     }
     $scope.senddata = function (data, room) {
@@ -284,11 +281,11 @@ CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $sco
 
     $scope.sendAnswer = function ()
     {
-        console.log("Send Answer to");
-        console.log($scope.connection);
+        Utils.debug_log(socketService,"Send Answer to");
+        
         $scope.remoteUser = $scope.connection.toId;
         socketService.startUserMedia();
-        appendRemoteVideoElement($scope.connection.toId)
+        appendRemoteVideoElement(socketService.connection.toId)
 
         console.log("Receive offer: ");
         console.log($scope.connection.type);
@@ -300,6 +297,6 @@ CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $sco
     }
     
     getProfileByUsername();
-   
+  
     //$scope.init();
 });

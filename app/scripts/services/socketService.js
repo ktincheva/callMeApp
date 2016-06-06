@@ -24,7 +24,7 @@ CallMe.factory('socketService', function ($sce, $location, config, $q) {
     
     var setConnection = function(conn)
     {
-        console.log('------------------- servise set connection');
+        Utils.debug_log(conn, '------------------- servise set connection');
         connection = conn;
     } 
     
@@ -119,7 +119,7 @@ CallMe.factory('socketService', function ($sce, $location, config, $q) {
         localVideo.srcObject = stream;
         console.log('Add local stream to the peer connection');
         console.log(localStream);
-       
+        
         geePeer();
     }
     
@@ -155,7 +155,7 @@ CallMe.factory('socketService', function ($sce, $location, config, $q) {
         }
         else {
             console.log("Create new PeerConnection")
-            peer = new PeerConnection(localStream, connection, socket)
+            peer = new PeerConnection(localStream, connection)
             
             console.log('New peer Created');
             console.log(peer);

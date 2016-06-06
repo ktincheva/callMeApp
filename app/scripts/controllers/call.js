@@ -29,22 +29,23 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
         audio: true,
         video: false,
     }
-     var offerOpt = {
+    var offerOpt = {
         offerToReceiveAudio: 1,
         offerToReceiveVideo: 0
     };
+    if ($routeParams.roomId)
+        roomId = $routeParams.roomId;
     $scope.user = {username: $routeParams.userId};
     $scope.message = {text: ""};
     $scope.connection = {};
-
+    $scope.room = roomId;
     $scope.connection.socketid = socket.id;
     $scope.connection.user = {'username': $scope.user.username};
     $scope.connection.roomId = roomId;
 
-    Utils.debug_log(socketService.users,"users connected to this socket");
+    Utils.debug_log(socketService.users, "users connected to this socket");
 
-    if ($routeParams.roomId)
-        roomId = $routeParams.roomId;
+
     socketService.setConnection($scope.connection);
 
 // toId == received fromId
@@ -70,7 +71,7 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
     }
     var stopVideo = function ()
     {
-        socketService.localStream.getVideoTracks()[0].stop();
+        //socketService.localStream.getVideoTracks()[0].stop();
         socketService.localStream.getAudioTracks()[0].stop();
         socketService.localStream = null;
         socketService.localVideo.pause();
@@ -79,17 +80,16 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
 
     var getProfileByUsername = function (username)
     {
-        
+        Utils.debug_log(username, "Get profile of user connected");
         Profile.getProfileByUsernameJson(username)
                 .success(function (data) {
-                    
+
                     var user = $filter('filter')(data.users, function (item) {
-                        Utils.debug_log(username, "Get profile of user connected");
                         return item.username === username;
                     })[0];
-                    Utils.debug_log(user, "User Profile");
+                    Utils.debug_log(user, "User connected receided data");
                     profile = user;
-                     Utils.debug_log(profile, "User profile")
+                    Utils.debug_log(profile, "Ser user profile with data received")
                     $scope.init(user)
                     // should send data to the server
                 })
@@ -119,7 +119,24 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
             });
         }
     }
- 
+
+    var updateRooms = function (data) {
+        Utils.debug_log(data, "Update rooms");
+        $scope.current_room = data.room;
+        updateUsersConnected(data.users, 'conneted')
+    }
+    var updateChat = function (data)
+    {
+        Utils.debug_log(data, "update chat message");
+        $('#conversation-' + data.room).append('<b>' + data.user + ':</b>  <pre>' + $filter('smilies')(data.text) + '</pre>');
+        updateUsersConnected(data.users, 'conneted')
+    }
+    var updateUsersConnected = function (users, status) {
+        Utils.debug_log(users, "------------ Socket service update users connected------------------")
+        $scope.users_connected = users;
+        $scope.status = status;
+        $scope.$apply();
+    }
     $scope.createImageUrl = function (data)
     {
 
@@ -131,12 +148,10 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
     }
 
     $scope.init = function (data) {
-       
-        
-        Utils.debug_log(data);
+        Utils.debug_log(data, "Init scope when get user profile");
         $scope.user = data;
         $scope.schedule = data.schedule;
-        
+
         socket.emit('init', {room: roomId, username: $scope.user.username, profile: data});
         // when the client hits ENTER on their keyboard
         $('.message').keypress(function (e) {
@@ -147,18 +162,13 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
         });
     };
 
-    var updateUsersConnected = function (users, status) {
-        Utils.debug_log("------------ Socket service update users connected------------------")
-        $scope.users = users;
-        $scope.status = status;
-        $scope.$apply();
-    }
+
 
     hangupButton.disabled = true;
     hangupButton.onclick = hangup;
     // userMediaButton.onclick = socketService.startUserMedia;
     disconnectButton.onclick = disconnect;
-    
+
 
     $scope.rooms = rooms;
     $scope.config = config;
@@ -179,7 +189,11 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
 
         // socket.emit('adduser', $scope.user.username);
     }
-     $scope.sendOffer = function (toId) {
+    $scope.switchRoom = function (room) {
+        console.log('switch to room: ' + room)
+        socket.emit('switchRoom', {room: room, username: $scope.user.username});
+    }
+    $scope.sendOffer = function (toId) {
         Utils.debug_log(toId, 'Starting call to');
         $scope.connection.fromId = $scope.user.username;
         $scope.connection.toId = toId;
@@ -211,47 +225,63 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
         Utils.debug_log($scope.connection.type);
     };
 
-    $scope.startUserMedia = function()
+    $scope.startUserMedia = function ()
     {
         console.log(videoConst);
         socketService.setVideoConstraints(videoConst);
         socketService.startUserMedia();
     }
-    $scope.showParticipants = function(meeting_id)
+    $scope.showParticipants = function (meeting_id)
     {
         $scope.switchMeeting(meeting_id)
-         return $filter('filter')($scope.user.schedule, function (meeting) {return meeting.meeting_id === meeting_id;})[0];              
+        return $filter('filter')($scope.user.schedule, function (meeting) {
+            return meeting.meeting_id === meeting_id;
+        })[0];
     }
-    
-    $scope.switchMeeting = function(id)
+
+    $scope.switchMeeting = function (id)
     {
-        var meeting = $(".meeting_"+id);
-        Utils.debug_log(id,"show participants");
-           
-         var meetings  = $(".participants");
-         meetings.each(function(){
-             if($(this).hasClass("active")) {
-                 $(this).removeClass("active");
-             }
-             $(this).addClass("deactivated"); 
-         })
-         meeting.removeClass("deactivated");
-         meeting.addClass("active");
+        var meeting = $(".meeting_" + id);
+        Utils.debug_log(id, "show participants");
+
+        var meetings = $(".participants");
+        meetings.each(function () {
+            if ($(this).hasClass("active")) {
+                $(this).removeClass("active");
+            }
+            $(this).addClass("deactivated");
+        })
+        meeting.removeClass("deactivated");
+        meeting.addClass("active");
     }
-    
+
     getProfileByUsername($routeParams.userId);
+    $scope.switchRoom(roomId)
     angular.element(document).ready(function () {
-        
-        var meeting = $(".participants").filter(function(index){
-                console.log(index);
-                return index==0;
-            });
-                    meeting.removeClass("deactivated").addClass("active");
-            Utils.debug_log(meeting, "When document ready");
+
+        var meeting = $(".participants").filter(function (index) {
+            console.log(index);
+            return index == 0;
+        });
+        meeting.removeClass("deactivated").addClass("active");
+        Utils.debug_log(meeting, "When document ready");
     });
-    
-       AppEmitter.on('msg', function (data) {
-        Utils.debug_log(data)
-        socketService.handleMessage(data); 
-    }); 
+
+    AppEmitter.on('msg', function (data) {
+        Utils.debug_log(data, "Peer connection messages handler");
+        socketService.handleMessage(data);
+    });
+    AppEmitter.on('updaterooms', function (data) {
+        Utils.debug_log(data, "On update rooms event received")
+        updateRooms(data);
+    });
+
+    AppEmitter.on('updateusers', function (data) {
+        Utils.debug_log(data, "On update users event reseived")
+        updateUsersConnected(data.users, data.status)
+    });
+    AppEmitter.on('updatechat', function (data) {
+        Utils.debug_log(data, "On opdate chat message reveived");
+        updateChat(data);
+    });
 });

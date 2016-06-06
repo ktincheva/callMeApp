@@ -9,8 +9,9 @@ var Utils = function () {
 Utils.debug_log = function (data, msg)
 {
     var err = new Error();
-    console.log("Log info>>  "+ msg);
+    console.log("---------------Start Steak trace --------------------------")
+    console.log("Log info start>>  "+ msg);
     console.log(data);
-    console.log("---------------Steck trace --------------------------")
     console.log(err)
+     console.log("---------------End Steak trace --------------------------")
 }

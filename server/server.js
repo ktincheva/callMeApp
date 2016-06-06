@@ -34,43 +34,31 @@ exports.run = function (config) {
     
     var saveData = function(data)
     {
-        
+
     }
+
     io.on('connection', function (socket) {
         console.log("--------------Socket is connected----------");
         console.log(socket.handshake);
         console.log("--------On connection socket room is----------");
         console.log(socket.room);
+       
         
-        
-        socket.on('init', function (data) {
+        var initHandler =  function (data) {
             console.log("---------------- On event init data----------");
             console.log(data);
-             console.log("---------------- Connection info ----------");
+            console.log("---------------- Connection info ----------");
             console.log(connectionInfo);
             connectionInfo.sender = data.username;
-            
-           
+            sockets[data.username] = socket;
             socket.room = data.room;
             socket.username = data.username;
-             
-            console.log("--------------------Client data current Room------------------");
-            console.log(socket.room);
-            console.log("--------------------Client data current user ------------------");
-            console.log(data.username);
-          
+            data.status = 'connected';
             userIds[data.username] = data;
-            
-            
-            console.log("------------------------Users Ids json object---------------------");
-            console.log(userIds);
-            console.log("----------------------- Current Room clients----------------------");
             console.log(io.sockets.adapter.rooms[socket.room]);
             
             if (io.sockets.adapter.rooms[socket.room])
                 numClients = io.sockets.adapter.rooms[socket.room].length;
-            
-            
             console.log('-----Room ' + socket.room + ' has ' + numClients + ' client(s)----');
             var result = {'room': socket.room, 'socket': socket.id, 'user': data.username, 'users': userIds, 'status': 'connected'};
             sockets[socket.id] = result;
@@ -83,35 +71,12 @@ exports.run = function (config) {
                 socket.join(data.room);
                 io.sockets.in(data.room).emit('joined', result);
                 console.log(socket.adapter.rooms[data.room].length);
-                socket.emit('full', result);
+                //socket.emit('full', result);
             }
-
             console.log(io.sockets.adapter.rooms[data.room]);
             console.log('Peer connected to room', data.room, 'with #', socket.id);
-        });
-
-        socket.on('msg', function (data) {
-            console.log("Message received: " + data.type);
-            connectionInfo.handleEvents(data.type, data)
-            console.log(data);
-            io.sockets.in(data.room).emit('msg', data)
-        });
-        socket.on('test', function(data) {
-            io.sockets.in(data.room).emit('test', data)
-        });
-        
-        socket.on('userleave', function (data)
-        {
-        
-        });
-        // when the client emits 'sendchat', this listens and executes
-        socket.on('message', function (data) {
-            console.log("Server: on send chat event starts", data);
-            io.sockets.in(data.room).emit('updatechat', {'text': data.text, 'room': data.room, 'users': userIds, 'user': data.username, 'status': 'connected'});
-        });
-
-        socket.on('switchRoom', function (data) {
-            // leave the current room (stored in session)
+        }
+        var switchroomHandler = function (data) {
             console.log("---------------------leave curent room -----------------");
             console.log(data.room)
             console.log("---------------------user leaved curent room is -----------------");
@@ -127,12 +92,21 @@ exports.run = function (config) {
             console.log("--------------- socket room is --------------------");
             console.log(socket.room);
             
-            socket.emit('updatechat',  {'user': 'SERVER', 'text': 'Hello '+data.username+' :) You have connected to room ' + data.room , 'room': data.room, 'users': userIds, 'status': 'connected'});
+            io.sockets.in(data.room).emit('updatechat',  {'user': 'SERVER', 'text': 'Hello '+data.username+' :) You have connected to room ' + data.room , 'room': data.room, 'users': userIds, 'status': 'connected'});
             socket.broadcast.to(data.room).emit('updatechat', {'user': 'SERVER', 'text': data.username + ' has joined the room '+data.room, 'room': data.room, 'users': userIds, 'status': 'connected'});
             socket.emit('updaterooms', {'rooms': rooms, 'room': data.room, 'users': userIds});
-        });
+        }
 
-        socket.on('disconnect', function() {
+        var msgHandler = function (data) {
+            connectionInfo.handleEvents(data.type, data)
+            socket.broadcast.to(data.room).emit('msg', data)
+            }
+
+        var messageHandler = function (data) {
+            io.sockets.in(data.room).emit('updatechat', {'text': data.text, 'room': data.room, 'users': userIds, 'user': data.username, 'status': 'connected'});
+        }
+
+        var disconnectHandler = function() {
             console.log('-----------------On disconnect-----------------------');
             connectionInfo.connectionClose = new Date();
             result = connectionInfo.getProps(connectionInfo);
@@ -146,7 +120,14 @@ exports.run = function (config) {
                 socket.broadcast.emit('userleaved', {'username': socket.username, 'users': userIds});
                 socket.leave(socket.room);
             }
-        });
+        }
+
+        socket.on('init', initHandler);
+        socket.on('msg', msgHandler);
+        socket.on('message', messageHandler);
+        socket.on('switchRoom', switchroomHandler);
+        socket.on('disconnect', disconnectHandler);
+        
         
     });
 };

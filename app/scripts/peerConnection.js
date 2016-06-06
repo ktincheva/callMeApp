@@ -13,14 +13,12 @@ var PeerConnection = function (localStream, connection)
     };
 
     var connection = connection;
-   
-    console.log(socket)
+  
     console.log("Create new RTCPeerConnection");
 
 
     var onIceCandidate = function (event) {
         console.log(event.candidate);
-        console.log(socket);
         if (event.candidate) {
             socket.emit('msg', {room: connection.roomId, type: 'ice', ice: event.candidate, user: connection.user.username});
         }
@@ -41,7 +39,6 @@ var PeerConnection = function (localStream, connection)
         console.log('pc1 setLocalDescription start');
         peerConn.setLocalDescription(offer, function () {
             console.log(connection);
-
             socket.emit('msg', {room: connection.roomId, fromId: connection.user.username, toId: connection.toId, sdp: offer, type: 'sdp-offer', user: connection.user.username});
         });
     };

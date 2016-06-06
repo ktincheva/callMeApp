@@ -1,41 +1,12 @@
-<style type="text/css">
-    div[data-*] {
-        cursor: pointer;
-        width: 100%;
-    }
-    .full button span {
-        background-color: limegreen;
-        border-radius: 32px;
-        color: black;
-    }
-    .partially button span {
-        background-color: orange;
-        border-radius: 32px;
-        color: black;
-    }   
-    .active {
-        display: block;
-    }
-
-    .deactivated {
-        display: none;
-    }
-    .table-hover {
-        cursor: pointer;
-    }
-    a {
-     cursor: pointer;
-     
-    }
-</style>
-<div class="container" ng-controller = "CallCtrl">
+<div class="container">
     <div class="row-fliud"> 
         <h2>Call Me<span class="current_room"></span></h2>
+        <a ng-click="startUserMedia()">
+            <i class = "icon-large icon-microphone"></i>
+        </a>
          <a ng-click="startUserMedia()">
-               <i class = "icon-large icon-microphone"></i>
-            </a>
-        <p>Start microphone</p>
-           
+            <i class = "icon-large icon-mute"></i>
+        </a>
         
     </div>
 </div>
@@ -65,10 +36,10 @@
     <button type="button" class="btn btn-sm btn-danger" ng-click="clear()">Clear</button>
     <button type="button" class="btn btn-sm btn-default" ng-click="toggleMin()" uib-tooltip="After today restriction">Min date</button>
 </div>
-<div ng-controller = "CallCtrl">
+<div>
     <div class="container">
         <div class="row-fliud">
-
+            <div id="conversation-{{room}}"></div> 
             <div class="col-sm-12 col-md-12">
                 <h3>Your profile</h3>
                 <div style="padding: 1px; border: 1px solid #C09788; width: 84px">
@@ -81,9 +52,8 @@
                 <p>First name: {{user.firstName}}</p>
                 <p>Last name: {{user.lastName}}</p>
                 <p>email: {{user.email}}</p>
-
             </div>
-            <div id="conversation-{{room}}"></div> 
+
             <div class="col-sm-12 col-md-12">
                 <h3>Your schedule</h3>
 
@@ -103,18 +73,27 @@
                 <ul ng-repeat="meeting in schedule" class="participants meeting_{{meeting.meeting_id}} deactivated">
                     <li class="participant">
                         <h2>{{meeting.theme}}</h2>
-                        <div  ng-repeat="participant in meeting.participants">
-                            <div style="padding: 1px; border: 1px solid #C09788; width: 84px">
+
+                        <div class="col-sm-12 col-md-12" ng-repeat="participant in meeting.participants">
+                            <div class="col-sm-4 col-md-4">
                                 <a href="profile/{{user.avatar}}" class="">
                                     <img src="./images/{{participant.avatar}}" alt="" border="0" height="128" width="128" />
                                 </a>
                             </div>
-                            <p>User: {{participant.status}} </p>
-                            <p>Username: {{participant.username}}</p>
-                            <p>First name: {{participant.firstName}}</p>
-                            <p>Last name: {{participant.lastName}}</p>
-                            <p>email: {{participant.email}}</p>
-                            <span><a ng-click="sendOffer(participant.username)"><i class = "glyphicon glyphicon-phone"></i>{{participant.username}}</a></span> 
+                            <div class="col-sm-8 col-md-8">
+                                <p>User name: {{participant.username}}</p>
+                                <p>Status: 
+                                    <span ng-switch="users_connected[participant.username].status">
+                                        <span ng-switch-when="connected">
+                                            {{users_connected[participant.username].status}} <a ng-click="sendOffer(participant.username)"><i class = "icon-large icon-phone" style="font-color: #009926; font-style: italic; color: red;"></i></a></span> 
+                                        <span ng-switch-default>N/A</span>    
+                                    </span>
+                                </p>
+
+                                <p>First name: {{participant.firstName}}</p>
+                                <p>Last name: {{participant.lastName}}</p>
+                                <p>email: {{participant.email}}</p>
+                            </div>
                         </div>
                     </li>   
                 </ul>

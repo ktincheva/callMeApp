@@ -81,3 +81,33 @@ video {
 .call_icon, .hangup_icon{
     width: 32px;
 }
+
+div[data-*] {
+        cursor: pointer;
+        width: 100%;
+    }
+    .full button span {
+        background-color: limegreen;
+        border-radius: 32px;
+        color: black;
+    }
+    .partially button span {
+        background-color: orange;
+        border-radius: 32px;
+        color: black;
+    }   
+    .active {
+        display: block;
+    }
+
+    .deactivated {
+        display: none;
+    }
+    .table-hover {
+        cursor: pointer;
+    }
+    a {
+     cursor: pointer;
+     text-decoration: none;
+     ;
+    }
