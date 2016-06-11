@@ -1,6 +1,7 @@
 {
     "users": [
         {
+            "userId" : "user1",
             "username": "user1",
             "firstName": "John",
             "lastName": "Doe",
@@ -13,12 +14,14 @@
                     "schedule_date": "2016-06-15 16:40:00",
                     "participants": [
                         {
+                            "userId" : "user2",
                             "username": "user2",
                             "firstName": "John",
                             "lastName": "Doe",
                             "email": "test3@example.com",
                             "avatar": "avatar3.png"
                         }, {
+                            "userId" : "user3",
                             "username": "user3",
                             "firstName": "John",
                             "lastName": "Doe",
@@ -33,12 +36,14 @@
                     "schedule_date": "2016-06-16 16:40:00",
                     "participants": [
                         {
+                            "userId" : "user1",
                             "username": "user1",
                             "firstName": "John",
                             "lastName": "Doe",
                             "email": "test1@example.com",
                             "avatar": "avatar2.png"
                         }, {
+                            "userId" : "user3",
                             "username": "user3",
                             "firstName": "John",
                             "lastName": "Doe",
@@ -53,12 +58,14 @@
                     "schedule_date": "2016-06-17 16:40:00",
                     "participants": [
                         {
+                            "userId" : "user1",
                             "username": "user1",
                             "firstName": "John",
                             "lastName": "Doe",
                             "email": "test1@example.com",
                             "avatar": "avatar1.png"
                         }, {
+                            "userId" : "user2",
                             "username": "user2",
                             "firstName": "John",
                             "lastName": "Doe",
@@ -81,12 +88,14 @@
                     "theme": "Theme 2",
                     "schedule_date": "2016-06-15 19:50:00",
                     "participants": [{
+                            "userId" : "user1",
                             "username": "user1",
                             "firstName": "John",
                             "lastName": "Doe",
                             "email": "test3@example.com",
                             "avatar": "avatar1.png"
                         }, {
+                            "userId" : "user3",
                             "username": "user3",
                             "firstName": "John",
                             "lastName": "Doe",
@@ -100,6 +109,7 @@
             ]
         },
         {
+            "userId" : "user3",
             "username": "user3",
             "firstName": "John",
             "lastName": "Doe",
@@ -110,12 +120,14 @@
                     "theme": "Theme 3",
                     "schedule_date": "2016-06-15 10:50:00",
                     "participants": [{
+                            "userId" : "user3",
                             "username": "user3",
                             "firstName": "John",
                             "lastName": "Doe",
                             "email": "test3@example.com",
                             "avatar": "avatar3.png"
                         }, {
+                            "userId" : "user3",
                             "username": "user3",
                             "firstName": "John",
                             "lastName": "Doe",
@@ -131,18 +143,21 @@
                     "schedule_date": "2016-06-15 10:50:00",
                     "participants": [
                         {
+                            "userId" : "user1",
                             "username": "user1",
                             "firstName": "John",
                             "lastName": "Doe",
                             "email": "test1@example.com",
                             "avatar": "avatar1.png"
                         }, {
+                            "userId" : "user3",
                             "username": "user3",
                             "firstName": "John",
                             "lastName": "Doe",
                             "email": "test3@example.com",
                             "avatar": "avatar3.png"
                         }, {
+                            "userId" : "user3",
                             "username": "user3",
                             "firstName": "John",
                             "lastName": "Doe",

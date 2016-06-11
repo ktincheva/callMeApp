@@ -60,7 +60,9 @@ var CallMe = angular.module('callMeApp', [
 
         })
         .run(function () {
-            
-
+               
         });
-        ;
+       
+CallMe.factory('socketClient', function() {
+    return socketClient;
+});
