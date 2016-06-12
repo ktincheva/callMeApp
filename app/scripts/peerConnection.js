@@ -25,7 +25,7 @@ Utils.debug_log(params, "Peer Connection params");
 
     var offerOptions = {
         offerToReceiveAudio: 1,
-        offerToReceiveVideo: 0
+        offerToReceiveVideo: 1
     };
 
     var connection = params;

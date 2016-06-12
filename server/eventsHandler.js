@@ -75,6 +75,7 @@ var eventsHandler = function (socketObj, ioObj,config) {
         
         socket.join(data.roomId);
         socket.room = data.roomId;
+        
         console.log( userIds);
         console.log("----------- EMIT EVENTS------------------");
        socket.emit('updatechat', {'user': 'SERVER', 'text': 'Hello ' + data.user.userId + ' :) You have connected to room ' + data.roomId, 'roomId': data.roomId, 'userIds': userIds, 'status': 'connected'});
@@ -89,7 +90,10 @@ var eventsHandler = function (socketObj, ioObj,config) {
         socket.broadcast.to(data.roomId).emit('peer.event', data)
     }
     var messageHandler = function (data) {
-        io.sockets.in(data.room).emit('updatechat', {'text': data.text, 'roomId': data.roomId, 'users': userIds, 'user': data.user, 'status': 'connected'});
+        console.log("----------------- Message data received ------------------------");
+        console.log(data);
+       socket.emit('updatechat', {'text': data.text, 'roomId': data.roomId, 'users': userIds, 'user': data.userId, 'userIds': userIds, 'status': 'connected'}); 
+       socket.broadcast.to(data.roomId).emit('updatechat', {'text': data.text, 'roomId': data.roomId, 'users': userIds, 'user': data.userId, 'userIds': userIds, 'status': 'connected'});
     }
     var disconnectHandler = function () {
         console.log('-----------------On disconnect-----------------------');

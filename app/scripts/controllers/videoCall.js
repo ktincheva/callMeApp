@@ -7,75 +7,73 @@
  * Controller of the publicApp
  */
 
-CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $scope, $filter, config, imagesUpload, Profile, socketService, video,  ngVideoOptions) {
+CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $scope, $filter, config, imagesUpload, Profile, socketService, video, ngVideoOptions) {
     this.awesomeThings = [
         'HTML5 Boilerplate',
         'AngularJS',
         'Karma'
     ];
 
+    Utils.debug_log($routeParams, "Route parameters received");
+    socket.emit("test", "This is a test message sended");
 
-    socket.emit('test', {data: "Test send alabala"});
-    socket.on('test', function (data) {
-        Utils.debug_log('test sended to')
-    });
-
-    console.log($routeParams);
     //var startButton = document.getElementById('startButton');
     //var socket = socketService.socket;
-    var hangupButton = document.getElementById('hangupButton');
-    var disconnectButton = document.getElementById('disconnectButton');
+    /*var hangupButton = document.getElementById('hangupButton');
+     var disconnectButton = document.getElementById('disconnectButton');
+     */
+
+    var localVideo = document.getElementById('local-video');
+    var localStream = null;
     var rooms = ['room1', 'room2', 'room3'];
-    var roomId = 'room1';
+    var roomId = $routeParams.roomId;
+    var userId = $routeParams.userId;
 
     var videoConstr = {
         audio: true,
         video: true,
     }
-    
-    $scope.user = {username: $routeParams.userId};
+    var offerOpt = {
+        offerToReceiveAudio: 1,
+        offerToReceiveVideo: 1
+    };
+    var user = {userId: $routeParams.userId, username: userId, media: {camera: false, microphone: false}}
+
+    /*
+     * data to send to events
+     */
+    var conn = {
+        roomId: roomId,
+        userId: userId,
+        remoteUserId: null,
+        type: '',
+        user: user,
+        localStream: null,
+    };
+
+    $scope.rooms = rooms;
+    $scope.config = config
+    $scope.user = user;
     $scope.message = {text: ""};
-    $scope.connection = {};
+    $scope.muted = false;
 
-    
-    $scope.connection.user = {'username': $scope.user.username};
-    $scope.connection.roomId = roomId;
+    $scope.roomId = roomId;
+    $scope.errors = [];
 
-    console.log("users connected to this socket");
-    console.log(socketService.users);
 
-    if ($routeParams.roomId)
-        roomId = $routeParams.roomId;
-    socketService.setConnection($scope.connection);
-    ngVideoOptions.BUFFER_COLOUR = '#00f';
+    Utils.debug_log(socketService.users, "users connected to this socket");
+
+    socketService.setConnection(conn);
+    socketService.setOfferOptions(offerOpt);
+
 // toId == received fromId
 
-    $scope.sendOffer = function (toId) {
-        console.log('Starting call to');
-        console.log(toId);
-        $scope.connection.fromId = $scope.user.username;
-        $scope.connection.toId = toId;
-        $scope.connection.type = 'offer'
-        socketService.setConnection($scope.connection);
-        if ($scope.user.username && $scope.connection.toId)
-        {
-            hangupButton.disabled = false;
-            console.log($scope.user.username + 'send createOffer start');
-            // getPeerConnection(connection.toId);
-            socketService.setVideoConstraints(videoConstr);
-            socketService.startUserMedia();
-            appendRemoteVideoElement(toId);
 
-        } else {
-            errors.push("Missing user name");
-        }
-
-    }
     var hangup = function () {
         console.log("User Hangup");
         console.log($scope.user.username);
         socket.emit('userleave', {room: roomId, username: $scope.user.username})
-        hangupButton.disabled = true;
+        //hangupButton.disabled = true;
         socketService.localStream = null;
         //socket.disconnect();
         socketService.peer.connectionClose();
@@ -95,32 +93,27 @@ CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $sco
         //localVideo.remove();
     }
 
-    
-    var getProfileByUsername = function ()
+
+
+    var getProfileByUsername = function (username)
     {
-        console.log($scope.user.username);
-        var profile = Profile.getProfileByUsernameJson($scope.user.username)
+        Utils.debug_log(username, "Get profile of user connected");
+        Profile.getProfileByUsernameJson(username)
                 .success(function (data) {
-
-                    var user = $filter('filter')(data.users, function (item) {
-
-                        return item.username === $scope.user.username;
+                    user = $filter('filter')(data.users, function (item) {
+                        return item.username === username;
                     })[0];
-
-                    console.log("Get user profileByUserName");
-                    console.log(user);
-                    if (user)
-                        $scope.init(user);
-                        
+                    user.media = {camera: true, microphone: true};
+                    Utils.debug_log(user, "User connected receided data");
+                    $scope.init(user)
                     // should send data to the server
                 })
                 .error(function (data) {
                     //shpould log errors
-                    console.log(data);
-                })
-        console.log(profile.username);
-
+                    Utils.debug_log(data, "Get user's profile data by username");
+                });
     }
+
     var appendRemoteVideoElement = function (id)
     {
         var remoteVideo = document.getElementById('remote-video-' + id);
@@ -137,92 +130,52 @@ CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $sco
             remoteVideo = document.getElementById("remote-video-" + id)
             remoteVideo.addEventListener('loadedmetadata', function () {
                 remoteVideo.play();
-                console.log('Remote video videoWidth: ' + this.videoWidth +
+                Utils.debug_log(video, 'Remote video videoWidth: ' + this.videoWidth +
                         'px,  videoHeight: ' + this.videoHeight + 'px');
             });
         }
     }
 
-    var eventHandlers = function(event, data)
-    {
-        switch(event)
-        {
-            default: 
-                updateUsersConnected(data.users, data.status);  
-        }
-    }
-    $scope.createImageUrl = function (data)
-    {
 
-        angular.forEach(data, function (value, key)
-        {
-            console.log(value);
-            $scope.message.text += '<a href = "' + config.siteUrl + '/image_' + value.photo_sid + '_1.jpg"> click to see picture </a>';
-        });
-
-    }
-
-    $scope.init = function (data) {
-        $('#chat_rooms').show();
-        socket.emit('init', {room: roomId, username: $scope.user.username, profile: data});
-
-        console.log("-------------------------- init function --------------------------");
-        console.log($scope);
-        // when the client hits ENTER on their keyboard
-        $('.message').keypress(function (e) {
-            if (e.which == 13) {
-                $(this).blur();
-                $('#datasend').focus().click();
-            }
-        });
-    };
     var updateChat = function (data)
     {
-        Utils.debug_log(data);
-        $('#conversation-' + data.room).append('<b>' + data.user + ':</b>  <pre>' + $filter('smilies')(data.text) + '</pre>');
-        updateUsersConnected(data.users, 'conneted')
+        Utils.debug_log(data, "update chat message");
+        $('#conversation-' + data.roomId).append('<b>' + data.user + ':</b>  <pre>' + $filter('smilies')(data.text) + '</pre>');
+        updateUsersConnected(data.userIds, data.status)
     }
+
     var updateRooms = function (data) {
         console.log("Update rooms ");
         console.log($scope.users);
         console.log(data.room);
         $scope.current_room = data.room;
-        updateUsersConnected(data.users, 'conneted')
+        updateUsersConnected(data.userIds, 'conneted')
     }
-    
+
     var updateUsersConnected = function (users, status) {
         console.log("------------ Update users connected------------------")
         console.log(users)
         $scope.users = users;
         $scope.status = status;
-       $scope.$apply();
+        $scope.$apply();
     }
-    
-    
-    AppEmitter.on('updatechat', function (data) {
-         Utils.debug_log(data)
-        updateChat(data);
-    });
-    AppEmitter.on('updaterooms', function (data) {
-         Utils.debug_log(data)
-        updateRooms(data);
-    });
+    var handleMessage = function (data)
+    {
+        if (data.type == "sdp-offer")
+            conn.remoteUserId = data.userId
+        socketService.handleMessage(data);
+    }
+    var updateTest = function (data)
+    {
+        Utils.debug_log(data, "This is a test message received form server");
+        $('#conversation-room1').append('<b> SERVER: </b>  <pre>' + $filter('smilies')(data) + '</pre>');
+    }
 
-    AppEmitter.on('updateusers', function (data) {
-        Utils.debug_log(data)
-        updateUsersConnected(data.users, data.status)
-    });
-       
-     AppEmitter.on('msg', function (data) {
-        Utils.debug_log(data)
-        socketService.handleMessage(data); 
-    });    
-    
-    
-    hangupButton.disabled = true;
-    hangupButton.onclick = hangup;
+
+    // hangupButton.disabled = true;
+    //hangupButton.onclick = hangup;
     // userMediaButton.onclick = socketService.startUserMedia;
-    disconnectButton.onclick = disconnect;
+    //disconnectButton.onclick = disconnect;
     //sendOfferToAll.onclick = sendOfferToAll;
 
     $scope.rooms = rooms;
@@ -244,15 +197,41 @@ CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $sco
 
         // socket.emit('adduser', $scope.user.username);
     }
-    $scope.switchRoom = function (room) {
-        console.log('switch to room: ' + room)
-        socket.emit('switchRoom', {room: room, username: $scope.user.username});
+    $scope.createImageUrl = function (data)
+    {
+
+        angular.forEach(data, function (value, key)
+        {
+            console.log(value);
+            $scope.message.text += '<a href = "' + config.siteUrl + '/image_' + value.photo_sid + '_1.jpg"> click to see picture </a>';
+        });
+
     }
+
+    $scope.init = function (data) {
+        $('#chat_rooms').show();
+        Utils.debug_log(data, "Init scope when get user profile");
+        $scope.user = data;
+        conn.user = user
+        socket.emit('init', conn);
+        $scope.startUserMedia();
+        // when the client hits ENTER on their keyboard
+        $('.message').keypress(function (e) {
+            if (e.which == 13) {
+                $(this).blur();
+                $('#datasend').focus().click();
+            }
+        });
+    };
+    $scope.switchRoom = function (room) {
+        Utils.debug_log(room, 'Switch room')
+        socket.emit('switchRoom', {roomId: room, userId: userId, user: user});
+    }
+
     $scope.senddata = function (data, room) {
-        console.log("Send message data")
-        console.log(data);
+        Utils.debug_log(data, "Send message data")
         $('#data-' + room).html('');
-        data = {'room': room, 'username': $scope.user.username, 'text': data.text};
+        data = {'roomId': room, 'userId': userId, 'text': data.text};
         // tell server to execute 'sendchat' and send along one parameter
         socket.emit('message', data);
     }
@@ -278,25 +257,111 @@ CallMe.controller('videoCallCtrl', function ($sce, $location, $routeParams, $sco
                     console.log(error);
                 })
     }
+    $scope.sendOffer = function (remoteUserId) {
+        Utils.debug_log(remoteUserId, ' Starting call to remote the user');
+        conn.remoteUserId = remoteUserId;
+        if (userId && remoteUserId)
+        {
+            Utils.debug_log(localStream, "sendOffer");
+            if (!localStream)
+            {
+                $scope.errors.push({type: 'danger', msg: 'The user media device is not connected'});
+                return false;
+            }
+            conn.remoteUserId = remoteUserId;
+            conn.localStream = localStream;
+            conn.type = 'offer';
+            //hangupButton.disabled = false;
+            Utils.debug_log(conn, 'send createOffer start');
 
+            socketService.setConnection(conn);
+            socketService.createOffer()
+            appendRemoteVideoElement(remoteUserId);
+
+        } else {
+            $scope.errors.push({type: 'danger', msg: '"Missing user name"'});
+
+            return false;
+
+        }
+    }
     $scope.sendAnswer = function ()
     {
-        Utils.debug_log(socketService,"Send Answer to");
-        
-        $scope.remoteUser = $scope.connection.toId;
-        socketService.startUserMedia();
-        appendRemoteVideoElement(socketService.connection.toId)
-
-        console.log("Receive offer: ");
-        console.log($scope.connection.type);
+        Utils.debug_log(conn, "Send Answer to");
+        conn.localStream = localStream;
+        conn.type = 'answer';
+        socketService.setConnection(conn);
+        socketService.createOffer()
+        appendRemoteVideoElement(conn.remoteUserId)
     };
-     $scope.startUserMedia = function()
+    $scope.startUserMedia = function ()
     {
-        socketService.setVideoConstraints(videoConstr);
-        socketService.startUserMedia();
+
+        Utils.debug_log(localStream, "Start user media: ");
+
+        ///////////////
+        if (localStream) {
+            localStream.getTracks().forEach(function (track) {
+                track.stop();
+            });
+        }
+        setTimeout(function () {
+            navigator.mediaDevices.getUserMedia(videoConstr)
+                    .then(
+                            getStream,
+                            onGetUserMediaError
+                            );
+        }, (localStream ? 200 : 0));
     }
-    
-    getProfileByUsername();
-  
+    var getStream = function (stream) {
+        localStream = stream;
+        Utils.debug_log($scope.errors, "Scope errors");
+        if ($scope.errors && localStream)
+            $scope.errors = {};
+        $scope.$apply();
+        localVideo.src = window.URL.createObjectURL(stream);
+        localVideo.srcObject = stream;
+        localVideo.play();
+        // user.media.microphone = true;
+        Utils.debug_log(localStream, 'Add local stream to the peer connection');
+    }
+    var onGetUserMediaError = function (e) {
+        Utils.debug_log(e, "On get media stream srror");
+        $scope.errors.push({type: 'warning', msg: "Cannot start user media"});
+    }
+    getProfileByUsername(userId);
+
+    /*
+     * socket service event options
+     * should be moved to congif
+     */
+
+    var options =
+            {
+                eventHandlers: {updateTest: updateTest, updateChat: updateChat, updateRooms: updateRooms, updateUsersConnected: updateUsersConnected, handleMessage: handleMessage},
+                events: {
+                    'test': {eventHandler: 'updateTest'},
+                    'joined': {eventHandler: 'updateChat'},
+                    'created': {eventHandler: 'updateChat'},
+                    'updatechat': {eventHandler: 'updateChat'},
+                    'updaterooms': {eventHandler: 'updateRooms'},
+                    'updateusers': {eventHandler: 'updateUsersConnected'},
+                    'peer.event': {eventHandler: 'handleMessage'}
+                }};
+
+    var client = new socketClient(options);
+
+    Utils.debug_log(client, "New socket client should be ready ...");
+
+    ///////////
+    angular.element(document).ready(function () {
+
+        var meeting = $(".participants").filter(function (index) {
+            console.log(index);
+            return index == 0;
+        });
+        meeting.removeClass("deactivated").addClass("active");
+        Utils.debug_log(meeting, "When document ready");
+    });
     //$scope.init();
 });

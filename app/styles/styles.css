@@ -21,19 +21,10 @@ video {
   left: 0px;
 }
 
-.iphone-frame {
-  /*background-image: url(/images/iphone-frame.png);
-  background-size: 800px;
-  width: 800px;
-  height: 381px;
-  */
-  height: 381px;
-}
-
 .screen-wrapper {
   position: relative;
   width: 100%;
-  height: 100%;
+  height: 360px;
 }
 
 .screen-wrapper .remote-video {

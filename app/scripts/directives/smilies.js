@@ -29,7 +29,6 @@ var
             return (template.replace('$1', str));
         },
         apply = function (input) {
-            console.log(typeof input)
             if (!input || typeof input!='string')
                 return '';
             

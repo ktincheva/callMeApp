@@ -15,20 +15,14 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
         'Karma'
     ];
     Utils.debug_log($routeParams, "Route parameters received");
-
+    socket.emit("test", "This is a test message sended");
     //var startButton = document.getElementById('startButton');
     //var socket = socketService.socket;
-    var hangupButton = document.getElementById('hangupButton');
-    var disconnectButton = document.getElementById('disconnectButton');
     var localVideo = document.getElementById('local-video');
     var localStream = null;
 
     var rooms = ['room1', 'room2', 'room3'];
-    var roomId = 'room1';
-    var profiles = {};
-    var profile = {};
-
-
+    var roomId = 'room1'
     var roomId = $routeParams.roomId;
     var userId = $routeParams.userId
     var videoConstr = {
@@ -57,7 +51,7 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
      * @type type
      */
 
-    socket.emit("test", "This is a test message sended");
+
 
     $scope.rooms = rooms;
     $scope.config = config
@@ -65,7 +59,7 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
     $scope.message = {text: ""};
     $scope.muted = false;
 
-    $scope.room = roomId;
+    $scope.roomId = roomId;
     $scope.errors = [];
 
     Utils.debug_log(socketService.users, "users connected to this socket");
@@ -78,15 +72,13 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
     socketService.setOfferOptions(offerOpt);
 
 ////////////////////////////////////
-    socket.emit('init', conn);
+   // socket.emit('init', conn);
 
     var hangup = function () {
         Utils.debug_log("User Hangup");
         Utils.debug_log($scope.user.userId);
 
         socket.emit('userleave', {room: roomId, userId: $scope.user.userId})
-
-        hangupButton.disabled = true;
         localStream = null;
         //socket.disconnect();
         socketService.peer.connectionClose();
@@ -117,7 +109,6 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
                     })[0];
                     user.media = {camera: false, microphone: false};
                     Utils.debug_log(user, "User connected receided data");
-                    Utils.debug_log(profile, "Set user profile with data received")
                     $scope.init(user)
                     // should send data to the server
                 })
@@ -190,7 +181,7 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
         $scope.schedule = data.schedule;
         conn.user = user
         socket.emit('init', conn);
-
+        $scope.startUserMedia();
         // when the client hits ENTER on their keyboard
         $('.message').keypress(function (e) {
             if (e.which == 13) {
@@ -201,7 +192,7 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
     };
 
     $scope.switchRoom = function (room) {
-        console.log('switch to room: ' + room)
+        Utils.debug_log(room, 'Switch room')
         socket.emit('switchRoom', {roomId: room, userId: userId, user: user});
     }
 
@@ -213,15 +204,14 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
             Utils.debug_log(localStream, "sendOffer");
             if (!localStream)
             {
-                $scope.errors.push({type: 'danger', msg: 'The microhone is not connected'});
+                $scope.errors.push({type: 'danger', msg: 'The user media device is not connected'});
                 return false;
             }
             conn.remoteUserId = remoteUserId;
             conn.localStream = localStream;
             conn.type = 'offer';
-            hangupButton.disabled = false;
+            
             Utils.debug_log(conn, 'send createOffer start');
-
             socketService.setConnection(conn);
             socketService.createOffer()
             appendRemoteVideoElement(remoteUserId);
@@ -238,8 +228,8 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
     $scope.sendAnswer = function ()
     {
         Utils.debug_log(conn, "Send Answer to");
-            conn.localStream = localStream;
-            conn.type = 'answer';
+        conn.localStream = localStream;
+        conn.type = 'answer';
         socketService.setConnection(conn);
         socketService.createOffer()
         appendRemoteVideoElement(conn.remoteUserId)
@@ -310,13 +300,7 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
         meeting.removeClass("deactivated");
         meeting.addClass("active");
     }
-
-
-    hangupButton.disabled = true;
-    hangupButton.onclick = hangup;
     // userMediaButton.onclick = socketService.startUserMedia;
-    disconnectButton.onclick = disconnect;
-
     getProfileByUsername(userId);
     $scope.switchRoom(roomId)
 
@@ -351,7 +335,7 @@ CallMe.controller('CallCtrl', function ($routeParams, $scope, $filter, config, i
     var handleMessage = function (data)
     {
         if (data.type == "sdp-offer")
-            conn.remoteUserId  = data.userId
+            conn.remoteUserId = data.userId
         socketService.handleMessage(data);
     }
     /*
