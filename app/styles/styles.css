@@ -21,19 +21,10 @@ video {
   left: 0px;
 }
 
-.iphone-frame {
-  /*background-image: url(/images/iphone-frame.png);
-  background-size: 800px;
-  width: 800px;
-  height: 381px;
-  */
-  height: 381px;
-}
-
 .screen-wrapper {
   position: relative;
   width: 100%;
-  height: 100%;
+  height: 360px;
 }
 
 .screen-wrapper .remote-video {
@@ -81,3 +72,33 @@ video {
 .call_icon, .hangup_icon{
     width: 32px;
 }
+
+div[data-*] {
+        cursor: pointer;
+        width: 100%;
+    }
+    .full button span {
+        background-color: limegreen;
+        border-radius: 32px;
+        color: black;
+    }
+    .partially button span {
+        background-color: orange;
+        border-radius: 32px;
+        color: black;
+    }   
+    .active {
+        display: block;
+    }
+
+    .deactivated {
+        display: none;
+    }
+    .table-hover {
+        cursor: pointer;
+    }
+    a {
+     cursor: pointer;
+     text-decoration: none;
+     ;
+    }

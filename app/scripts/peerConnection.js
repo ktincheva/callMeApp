@@ -1,6 +1,22 @@
-var PeerConnection = function (localStream, connection)
-{
+/*
+ * 
+ * @param {type} params
+ * params of object type connection 
+ *      conn = {
+        roomId: roomId,
+        userId: userId,
+        remoteUserId: null,
+        type: '',
+        user: user,
+        localStream: null,
+        
+    };
+ * @returns {RTCPeerConnection|peerConn}
+ */
 
+var PeerConnection = function (params)
+{
+Utils.debug_log(params, "Peer Connection params");
     var iceConfig = {'iceServers': [{
                 'url': 'stun:stun.l.google.com:19302'
             }, {
@@ -9,50 +25,42 @@ var PeerConnection = function (localStream, connection)
 
     var offerOptions = {
         offerToReceiveAudio: 1,
-        offerToReceiveVideo: 0
+        offerToReceiveVideo: 1
     };
 
-    var connection = connection;
-   
-    console.log(socket)
-    console.log("Create new RTCPeerConnection");
-
-
+    var connection = params;
+    var localStream = connection.localStream;
+    Utils.debug_log(params,"Create new RTCPeerConnection");
     var onIceCandidate = function (event) {
-        console.log(event.candidate);
-        console.log(socket);
+        Utils.debug_log(event.candidate, "Added ICE candidate");
         if (event.candidate) {
-            socket.emit('msg', {room: connection.roomId, type: 'ice', ice: event.candidate, user: connection.user.username});
+            socket.emit('peer.event', {roomId: connection.roomId, type: 'ice', ice: event.candidate, user: connection.user.usetId});
         }
     }
     var onAddStream = function (event) {
         // localVideo.classList.remove('active-video');
-        console.log("on add remote stream of remote user " + connection.toId);
-        console.log(event.stream);
-        createVideoElement(event.stream);
+        Utils.debug_log(connection.remoteUserId, "on add remote stream of remote user ");
+        createRemoteVideoElement(event.stream);
         ;
     }
 
     var onCreateSessionDescriptionError = function (error) {
-        console.log('Failed to create session description: ' + error.toString());
+        Utils.debug_log(error.toString(),'Failed to create session description: ');
     }
 
     var onCreateOfferSuccess = function (offer) {
-        console.log('pc1 setLocalDescription start');
+        Utils.debug_log(connection,'pc1 setLocalDescription start');
         peerConn.setLocalDescription(offer, function () {
-            console.log(connection);
-
-            socket.emit('msg', {room: connection.roomId, fromId: connection.user.username, toId: connection.toId, sdp: offer, type: 'sdp-offer', user: connection.user.username});
+            Utils.debug_log(connection, "Set local descroption");
+            socket.emit('peer.event', {roomId: connection.roomId, userId: connection.user.userId, remoteUserId: connection.remoteUserId, sdp: offer, type: 'sdp-offer', user: connection.user});
         });
     };
 
     var onCreateAnswerSuccess = function (answer) {
         peerConn.setLocalDescription(new RTCSessionDescription(answer), function () {
-            console.log("send the answer to the remote connection");
+            Utils.debug_log(connection,"send the answer to the remote connection");
             $("#incomingCall").hide();
-            console.log(connection);
-
-            socket.emit('msg', {room: connection.roomId, fromId: connection.user.username, toId: connection.toId, sdp: answer, type: 'sdp-answer', user: connection.user.username});
+            socket.emit('peer.event', {roomId: connection.roomId, userId: connection.user.userId, remoteUserId: connection.remoteUserId, sdp: answer, type: 'sdp-answer', user: connection.user});
         });
 
     };
@@ -60,10 +68,10 @@ var PeerConnection = function (localStream, connection)
     {
         console.log("On create answer error");
     };
-    var createVideoElement = function (stream)
+    var createRemoteVideoElement = function (stream)
     {
-        console.log("Set stream to the videoe element per remote user id " + connection.toId);
-        var remoteVideo = document.getElementById('remote-video-' + connection.toId);
+        Utils.debug_log(connection,"Set stream to the videoe element per remote user id " + connection.remoteUserId);
+        var remoteVideo = document.getElementById('remote-video-' + connection.remoteUserId);
         console.log(remoteVideo);
         /*var vid = document.createElement("video");
          ;*to
@@ -80,11 +88,12 @@ var PeerConnection = function (localStream, connection)
     console.log(peerConn);
     peerConn.addIceCand = function (cand)
     {
+        console.log
         peerConn.addIceCandidate(cand);
     }
     peerConn.sendOffer = function (connection)
     {
-        console.log('Send offer to ' + connection.toId + ' on peer connection ' + peerConn);
+        Utils.debug_log(connection.remoteUserId, 'Send offer to ' + connection.remoteUserId + ' on peer connection ' + peerConn);
         peerConn.createOffer(onCreateOfferSuccess, onCreateSessionDescriptionError, offerOptions);
     }
 

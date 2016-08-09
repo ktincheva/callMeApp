@@ -1,45 +1,40 @@
 'use strict';
 CallMe.factory('socketService', function ($sce, $location, config, $q) {
-    
+
     var users = {};
     var status = '';
-    
+
     var peer = null;
     var peers = [];
-    
-    var videoConstraints = {
-        audio: true,
-        video: true,
-    }
-     var offerOptions = {
+
+    var offerOptions = {
         offerToReceiveAudio: 1,
         offerToReceiveVideo: 1
     };
-    
-    var localVideo = document.getElementById('local-video');
+
+
     var connection = {};
-    
-    
-   var localStream = null; 
-    
-    var setConnection = function(conn)
+
+    var localStream = null;
+    var remoteStreams = [];
+    var setConnection = function (conn)
     {
-        console.log('------------------- servise set connection');
+        Utils.debug_log(conn, '------------------- servise set connection');
         connection = conn;
-    } 
-    
-    var setOfferOptions = function(options)
+    }
+
+    var setOfferOptions = function (options)
     {
         Utils.debug_log(options, "Set offer options");
         offerOptions = options;
     }
-     var setVideoConstraints = function(videoConstr)
+    var setVideoConstraints = function (videoConstr)
     {
-        console.log(videoConstr);
+        Utils.debug_log(videoConstr, "Set video consttants");
         videoConstraints = videoConstr;
     }
     var handleMessage = function (data) {
-        console.log("Handle message function");
+        Utils.debug_log(data, "Handle message function received data");
         switch (data.type) {
             case 'sdp-offer':
                 receiveOffer(data);
@@ -48,89 +43,63 @@ CallMe.factory('socketService', function ($sce, $location, config, $q) {
                 receiveAnswer(data);
                 break;
             case 'ice':
-                console.log("-----On ICE candidate message -----")
-                console.log(data);
+                Utils.debug_log(data, "On ICE candidate event received data");
                 if (data.ice && peer)
                 {
+                    Utils.debug_log(peer, "Peer connection on ICE candidate event received");
                     var candidate = new RTCIceCandidate(data.ice);
                     peer.addIceCand(candidate);
                 }
                 break;
         }
     }
-    
- var receiveOffer = function (data) {
-        console.log("Received SDP offer data: ");
-        console.log(connection);
-        if (data.toId === connection.user.username)
+    var createOffer = function ()
+    {
+
+        Utils.debug_log(connection, 'Socket service create offer start');
+
+        if (!connection.localStream) {
+            return false;
+        }
+        getPeer();
+
+    }
+    var receiveOffer = function (data) {
+        Utils.debug_log(data, "Received SDP offer data: ");
+        Utils.debug_log(connection, "Received SDP offer connection: ");
+        if (data.remoteUserId === connection.userId)
         {
             $("#incomingCall").show();
-            connection.fromId = data.toId;
-            connection.toId = data.fromId;
             connection.type = 'answer';
             connection.sdp = data.sdp;
-
-            console.log(' createAnswer start to' + data.fromId);
-            console.log(connection);
+            getPeer();
+            Utils.debug_log(data.userId, ' createAnswer start to');
         }
     }
-       
+
     var receiveAnswer = function (data)
     {
-        console.log(connection);
-        console.log(data);
-        if (data.toId === connection.fromId)
+        Utils.debug_log(data, "Received SDP answer data: ");
+        Utils.debug_log(connection, "Received SDP answer connection: ");
+        if (data.remoteUserId === connection.userId)
         {
 
             console.log("Received SDP answer");
-
-            connection.fromId = data.toId;
-            connection.toId = data.fromId;
             connection.sdp = data.sdp;
             connection.type = 'answer-received';
+            
             peer.setRemoteDescription(new RTCSessionDescription(data.sdp));
 
         }
     }
-   
-   var startUserMedia = function () {
-        console.log("Start user media: ");
-        ///////////////
-        if (localStream) {
-            localStream.getTracks().forEach(function (track) {
-                track.stop();
-            });
-        }
-        setTimeout(function () {
-            navigator.mediaDevices.getUserMedia(
-                    videoConstraints
-                    ).then(
-                    getStream,
-                    onGetUserMediaError
-                    );
-        }, (localStream ? 200 : 0));
-    }
-    
-    var getStream = function (stream) {
-        localStream = stream;
-        var streamUrl = window.URL.createObjectURL(stream);
-        
-        localVideo.src = streamUrl;
-        localVideo.srcObject = stream;
-        console.log('Add local stream to the peer connection');
-        console.log(localStream);
-       
-        geePeer();
-    }
-    
-    var geePeer = function ()
+
+
+
+    var getPeer = function ()
     {
 
-        console.log("Get peer connection or create new if not exists");
-        console.log(connection);
-        getPeerConnection(connection.toId);
-        
-        console.log(peer);
+        Utils.debug_log(connection, "Get peer connection or create new if not exists");
+        getPeerConnection(connection.remoteUserId);
         // create video element
         if (connection.type === 'offer')
         {
@@ -140,49 +109,34 @@ CallMe.factory('socketService', function ($sce, $location, config, $q) {
         {
             peer.sendAnswer(connection);
         }
-        
+
     }
-    
+
     var getPeerConnection = function (id)
     {
-        console.log('Get peer connection');
-        console.log('with id ' + id);
-        console.log(peer);
+        Utils.debug_log(id, ' get peer connection with remote user id');
         if (peers[id])
         {
-            console.log("Get existing PeerConnection" + id);
+            Utils.debug_log(id, "Get existing PeerConnection");
             peer = peers[id];
         }
         else {
-            console.log("Create new PeerConnection")
-            peer = new PeerConnection(localStream, connection, socket)
-            
-            console.log('New peer Created');
-            console.log(peer);
+            Utils.debug_log(id,"Create new PeerConnection");
+            peer = new PeerConnection(connection)
+            Utils.debug_log(peer, 'New peer created');
             peers[id] = peer;
         }
-        console.log(peers);
+        Utils.debug_log(peers, "Existing peers connection");
     }
-    
-    
-      var onGetUserMediaError = function (e) {
-        console.log(e);
-    }
-    
-      localVideo.addEventListener('loadedmetadata', function () {
-        console.log('Local video videoWidth: ' + this.videoWidth +
-                'px,  videoHeight: ' + this.videoHeight + 'px');
-    });
+
     return {
-        
         'connection': connection,
         'localStream': localStream,
         'peer': peer,
         'peers': peers,
-        'startUserMedia': startUserMedia,
         'setConnection': setConnection,
         'handleMessage': handleMessage,
-        'setVideoConstraints': setVideoConstraints,
         'setOfferOptions': setOfferOptions,
+        'createOffer': createOffer
     }
 });

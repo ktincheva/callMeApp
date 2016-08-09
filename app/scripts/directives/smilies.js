@@ -29,8 +29,9 @@ var
             return (template.replace('$1', str));
         },
         apply = function (input) {
-            if (!input)
+            if (!input || typeof input!='string')
                 return '';
+            
             var output = input.replace(regex, (template));
             for (var sm in shorts) {
                 if (shorts.hasOwnProperty(sm)) {

@@ -1,1 +1,3 @@
-var  AppEmitter  = new EventEmitter();
+var AppEmitter = new EventEmitter();
+
+
