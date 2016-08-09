@@ -60,10 +60,10 @@ var CallMe = angular.module('callMeApp', [
         .constant('config', {
             // Change it for your app URL
             //  SIGNALIG_SERVER_URL: 'https://10.2.2.201:5555',
-            SIGNALIG_SERVER_URL: 'https://192.168.1.6:5555',
+            SIGNALIG_SERVER_URL: 'https://192.168.1.9:5555',
             max_connections: 50,
-            apiUrl: "https://10.2.2.201/chatApi/",
-            siteUrl: "https://10.2.2.201",
+            apiUrl: "https://192.168.1.9/chatApi/",
+            siteUrl: "https://192.168.1.9",
         })
         .run(function () {
 

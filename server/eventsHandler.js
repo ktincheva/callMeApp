@@ -44,7 +44,7 @@ var eventsHandler = function (socketObj, ioObj,config) {
         numClients = userIds.length;
         console.log('-----Room ' + socket.room + ' has ' + numClients + ' client(s)----');
         // var result = {'room': socket.room, 'socket': socket.id, 'user': data.username, 'users': userIds, 'status': 'connected'};
-        socketIds[socket.id] = result;
+        //socketIds[socket.id] = result;
 
         if (numClients === 0) {
             socket.join(data.roomId);

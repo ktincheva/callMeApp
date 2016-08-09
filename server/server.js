@@ -26,7 +26,7 @@ exports.run = function (config) {
 
     console.log("Server started!");
     console.log('Listening on', config.PORT);
-    var io = socketio.listen(server, {log: true});
+    var io = socketio.listen(server, {log: false});
     io.on('connection', function (socket) {
         var eventsHandler = eventsHndl.eventsHandler(socket, io, config);
     });
